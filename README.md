@@ -32,7 +32,7 @@ Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines on how to contribut
 
 ## License
 
-*To be determined - will follow open-core model*
+This repository is released under the [MIT License](LICENSE). Commercial extensions will live in separate repositories without impacting the open-source core.
 
 ## About Ambiware Labs
 
