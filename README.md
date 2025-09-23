@@ -38,10 +38,17 @@ If no config file is supplied the runtime loads defaults and respects the follow
 - `LOQA_NODE_ROLE`
 - `LOQA_NODE_HEARTBEAT_INTERVAL_MS`
 - `LOQA_NODE_HEARTBEAT_TIMEOUT_MS`
+- `LOQA_EVENT_STORE_PATH`
+- `LOQA_EVENT_STORE_RETENTION_MODE`
+- `LOQA_EVENT_STORE_RETENTION_DAYS`
+- `LOQA_EVENT_STORE_MAX_SESSIONS`
+- `LOQA_EVENT_STORE_VACUUM_ON_START`
 
 The bootstrap process exposes `/healthz` and `/readyz` endpoints and initializes OpenTelemetry tracing with a local stdout exporter. See `cmd/loqad --help` for additional flags.
 
 > **Note:** Loqa Core expects a NATS server with JetStream enabled to be running at the configured `bus.servers` endpoint (default `nats://localhost:4222`). You can start one locally with `nats-server --js` or the official Docker image.
+
+An on-disk SQLite event store is created at `event_store.path` (default `./data/loqa-events.db`) unless `event_store.retention_mode` is set to `ephemeral`. Use `session` for local replay debugging or `persistent` to honor retention windows (days and max sessions).
 
 ## Architecture
 
