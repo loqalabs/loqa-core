@@ -18,6 +18,10 @@ func TestEnvOverrides(t *testing.T) {
 	t.Setenv("LOQA_BUS_PASSWORD", "secret")
 	t.Setenv("LOQA_BUS_TLS_INSECURE", "true")
 	t.Setenv("LOQA_BUS_CONNECT_TIMEOUT_MS", "5000")
+	t.Setenv("LOQA_NODE_ID", "test-node")
+	t.Setenv("LOQA_NODE_ROLE", "runtime")
+	t.Setenv("LOQA_NODE_HEARTBEAT_INTERVAL_MS", "1500")
+	t.Setenv("LOQA_NODE_HEARTBEAT_TIMEOUT_MS", "5000")
 
 	cfg, err := Load("")
 	if err != nil {
@@ -36,5 +40,13 @@ func TestEnvOverrides(t *testing.T) {
 	if cfg.Bus.ConnectTimeout != 5000 {
 		t.Fatalf("expected timeout 5000, got %d", cfg.Bus.ConnectTimeout)
 	}
-
+	if cfg.Node.ID != "test-node" {
+		t.Fatalf("expected node id override")
+	}
+	if cfg.Node.HeartbeatInterval != 1500 {
+		t.Fatalf("expected heartbeat interval override")
+	}
+	if cfg.Node.HeartbeatTimeout != 5000 {
+		t.Fatalf("expected heartbeat timeout override")
+	}
 }

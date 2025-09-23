@@ -27,6 +27,7 @@ type Config struct {
 	HTTP        HTTPConfig      `yaml:"http"`
 	Telemetry   TelemetryConfig `yaml:"telemetry"`
 	Bus         BusConfig       `yaml:"bus"`
+	Node        NodeConfig      `yaml:"node"`
 }
 
 type BusConfig struct {
@@ -36,6 +37,20 @@ type BusConfig struct {
 	Token          string   `yaml:"token"`
 	TLSInsecure    bool     `yaml:"tls_insecure"`
 	ConnectTimeout int      `yaml:"connect_timeout_ms"`
+}
+
+type NodeConfig struct {
+	ID                 string             `yaml:"id"`
+	Role               string             `yaml:"role"`
+	HeartbeatInterval  int                `yaml:"heartbeat_interval_ms"`
+	HeartbeatTimeout   int                `yaml:"heartbeat_timeout_ms"`
+	Capabilities       []NodeCapability   `yaml:"capabilities"`
+}
+
+type NodeCapability struct {
+	Name       string            `yaml:"name"`
+	Tier       string            `yaml:"tier"`
+	Attributes map[string]string `yaml:"attributes"`
 }
 
 func Default() Config {
@@ -53,6 +68,15 @@ func Default() Config {
 		Bus: BusConfig{
 			Servers:        []string{"nats://localhost:4222"},
 			ConnectTimeout: 2000,
+		},
+		Node: NodeConfig{
+			ID:                "loqa-node-1",
+			Role:              "runtime",
+			HeartbeatInterval: 2000,
+			HeartbeatTimeout:  6000,
+			Capabilities: []NodeCapability{
+				{Name: "runtime.core", Tier: "balanced"},
+			},
 		},
 	}
 }
@@ -93,6 +117,10 @@ func applyEnvOverrides(cfg *Config) {
 	overrideString(&cfg.Bus.Token, "LOQA_BUS_TOKEN")
 	overrideBool(&cfg.Bus.TLSInsecure, "LOQA_BUS_TLS_INSECURE")
 	overrideInt(&cfg.Bus.ConnectTimeout, "LOQA_BUS_CONNECT_TIMEOUT_MS")
+	overrideString(&cfg.Node.ID, "LOQA_NODE_ID")
+	overrideString(&cfg.Node.Role, "LOQA_NODE_ROLE")
+	overrideInt(&cfg.Node.HeartbeatInterval, "LOQA_NODE_HEARTBEAT_INTERVAL_MS")
+	overrideInt(&cfg.Node.HeartbeatTimeout, "LOQA_NODE_HEARTBEAT_TIMEOUT_MS")
 }
 
 func overrideString(target *string, envKey string) {
@@ -141,6 +169,18 @@ func validate(cfg Config) error {
 	}
 	if len(cfg.Bus.Servers) == 0 {
 		return errors.New("bus.servers must not be empty")
+	}
+	if cfg.Node.ID == "" {
+		return errors.New("node.id must not be empty")
+	}
+	if cfg.Node.HeartbeatInterval <= 0 {
+		return errors.New("node.heartbeat_interval_ms must be positive")
+	}
+	if cfg.Node.HeartbeatTimeout <= cfg.Node.HeartbeatInterval {
+		return errors.New("node.heartbeat_timeout_ms must be greater than heartbeat interval")
+	}
+	if len(cfg.Node.Capabilities) == 0 {
+		return errors.New("node.capabilities must not be empty")
 	}
 	return nil
 }
