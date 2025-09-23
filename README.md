@@ -14,7 +14,22 @@ Loqa Core contains the foundational components for building and running a distri
 
 ## Getting Started
 
-*Coming soon - initial implementation in progress*
+Install prerequisites (Go 1.21+). Then:
+
+```bash
+go run ./cmd/loqad --config ./config/example.yaml
+```
+
+If no config file is supplied the runtime loads defaults and respects the following environment overrides:
+
+- `LOQA_RUNTIME_NAME`
+- `LOQA_RUNTIME_ENVIRONMENT`
+- `LOQA_HTTP_BIND`
+- `LOQA_HTTP_PORT`
+- `LOQA_TELEMETRY_LOG_LEVEL`
+- `LOQA_TELEMETRY_OTLP_ENDPOINT`
+
+The bootstrap process exposes `/healthz` and `/readyz` endpoints and initializes OpenTelemetry tracing with a local stdout exporter. See `cmd/loqad --help` for additional flags.
 
 ## Architecture
 

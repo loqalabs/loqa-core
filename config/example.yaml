@@ -1,0 +1,8 @@
+runtime_name: loqa-runtime
+environment: development
+http:
+  bind: 0.0.0.0
+  port: 8080
+telemetry:
+  log_level: info
+  otlp_endpoint: ""
