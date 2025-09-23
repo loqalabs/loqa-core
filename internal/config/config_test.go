@@ -10,6 +10,9 @@ func TestLoadDefaults(t *testing.T) {
 	if cfg.Bus.Servers[0] != "nats://localhost:4222" {
 		t.Fatalf("expected default server, got %v", cfg.Bus.Servers)
 	}
+	if cfg.Telemetry.PrometheusBind != ":9091" {
+		t.Fatalf("unexpected default prometheus bind: %s", cfg.Telemetry.PrometheusBind)
+	}
 }
 
 func TestEnvOverrides(t *testing.T) {

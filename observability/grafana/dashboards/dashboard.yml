@@ -1,0 +1,9 @@
+apiVersion: 1
+
+providers:
+  - name: "Loqa Dashboards"
+    orgId: 1
+    folder: "Loqa"
+    type: file
+    options:
+      path: /etc/grafana/provisioning/dashboards

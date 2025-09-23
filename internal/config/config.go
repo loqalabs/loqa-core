@@ -14,6 +14,8 @@ import (
 type TelemetryConfig struct {
 	LogLevel     string `yaml:"log_level"`
 	OTLPEndpoint string `yaml:"otlp_endpoint"`
+	OTLPInsecure bool   `yaml:"otlp_insecure"`
+	PrometheusBind string `yaml:"prometheus_bind"`
 }
 
 type HTTPConfig struct {
@@ -71,8 +73,10 @@ func Default() Config {
 			Port: 8080,
 		},
 		Telemetry: TelemetryConfig{
-			LogLevel:     "info",
-			OTLPEndpoint: "",
+			LogLevel:        "info",
+			OTLPEndpoint:    "",
+			OTLPInsecure:    true,
+			PrometheusBind: ":9091",
 		},
 		Bus: BusConfig{
 			Servers:        []string{"nats://localhost:4222"},
@@ -126,6 +130,8 @@ func applyEnvOverrides(cfg *Config) {
 	overrideInt(&cfg.HTTP.Port, "LOQA_HTTP_PORT")
 	overrideString(&cfg.Telemetry.LogLevel, "LOQA_TELEMETRY_LOG_LEVEL")
 	overrideString(&cfg.Telemetry.OTLPEndpoint, "LOQA_TELEMETRY_OTLP_ENDPOINT")
+	overrideBool(&cfg.Telemetry.OTLPInsecure, "LOQA_TELEMETRY_OTLP_INSECURE")
+	overrideString(&cfg.Telemetry.PrometheusBind, "LOQA_TELEMETRY_PROMETHEUS_BIND")
 	overrideStringSlice(&cfg.Bus.Servers, "LOQA_BUS_SERVERS")
 	overrideString(&cfg.Bus.Username, "LOQA_BUS_USERNAME")
 	overrideString(&cfg.Bus.Password, "LOQA_BUS_PASSWORD")
@@ -213,6 +219,9 @@ func validate(cfg Config) error {
 	}
 	if cfg.EventStore.RetentionDays < 0 {
 		return errors.New("event_store.retention_days must be >= 0")
+	}
+	if cfg.Telemetry.PrometheusBind == "" {
+		return errors.New("telemetry.prometheus_bind must not be empty")
 	}
 	return nil
 }

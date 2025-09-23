@@ -16,15 +16,16 @@ import (
 )
 
 type Runtime struct {
-	cfg         config.Config
-	logger      *slog.Logger
-	httpServer  *http.Server
-	tracerClose func(context.Context) error
-	busClient   *bus.Client
-	registry    *capability.Registry
-	eventStore  *eventstore.Store
-	ready       atomic.Bool
-	wg          sync.WaitGroup
+	cfg           config.Config
+	logger        *slog.Logger
+	httpServer    *http.Server
+	tracerClose   func(context.Context) error
+	busClient     *bus.Client
+	registry      *capability.Registry
+	eventStore    *eventstore.Store
+	metricsServer *http.Server
+	ready         atomic.Bool
+	wg            sync.WaitGroup
 }
 
 func New(cfg config.Config, logger *slog.Logger) *Runtime {
@@ -38,7 +39,7 @@ func (r *Runtime) Start(ctx context.Context) error {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 
-	shutdownTelemetry, err := setupTelemetry(r.cfg, r.logger)
+	shutdownTelemetry, metricsHandler, err := setupTelemetry(r.cfg, r.logger)
 	if err != nil {
 		return fmt.Errorf("failed to setup telemetry: %w", err)
 	}
@@ -63,6 +64,23 @@ func (r *Runtime) Start(ctx context.Context) error {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/healthz", r.handleHealth)
 	mux.HandleFunc("/readyz", r.handleReady)
+	if metricsHandler != nil && r.cfg.Telemetry.PrometheusBind != "" {
+		metricsMux := http.NewServeMux()
+		metricsMux.Handle("/metrics", metricsHandler)
+		r.metricsServer = &http.Server{
+			Addr:              r.cfg.Telemetry.PrometheusBind,
+			Handler:           metricsMux,
+			ReadHeaderTimeout: 5 * time.Second,
+		}
+		r.wg.Add(1)
+		go func() {
+			defer r.wg.Done()
+			if err := r.metricsServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+				r.logger.Error("metrics server failed", slog.String("error", err.Error()))
+			}
+		}()
+		r.logger.Info("metrics endpoint ready", slog.String("addr", r.cfg.Telemetry.PrometheusBind))
+	}
 
 	addr := fmt.Sprintf("%s:%d", r.cfg.HTTP.Bind, r.cfg.HTTP.Port)
 	r.httpServer = &http.Server{
@@ -91,6 +109,11 @@ func (r *Runtime) Start(ctx context.Context) error {
 	}
 	if r.registry != nil {
 		r.registry.Close()
+	}
+	if r.metricsServer != nil {
+		if err := r.metricsServer.Shutdown(shutdownCtx); err != nil {
+			r.logger.Warn("metrics server shutdown error", slog.String("error", err.Error()))
+		}
 	}
 	if r.eventStore != nil {
 		if err := r.eventStore.Close(); err != nil {

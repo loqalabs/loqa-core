@@ -6,6 +6,8 @@ http:
 telemetry:
   log_level: info
   otlp_endpoint: ""
+  otlp_insecure: true
+  prometheus_bind: ":9091"
 bus:
   servers:
     - nats://localhost:4222
@@ -24,3 +26,9 @@ node:
       tier: balanced
       attributes:
         modality: orchestration
+event_store:
+  path: ./data/loqa-events.db
+  retention_mode: session
+  retention_days: 30
+  max_sessions: 10000
+  vacuum_on_start: false
