@@ -1,0 +1,18 @@
+name: CI
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  placeholder:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: CI placeholder
+        run: |
+          echo "CI pipeline scaffolding in place."
+          echo "Replace this step with real build/test jobs as the codebase matures."
