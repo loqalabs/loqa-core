@@ -34,8 +34,14 @@ If no config file is supplied the runtime loads defaults and respects the follow
 - `LOQA_BUS_TOKEN`
 - `LOQA_BUS_TLS_INSECURE`
 - `LOQA_BUS_CONNECT_TIMEOUT_MS`
+- `LOQA_NODE_ID`
+- `LOQA_NODE_ROLE`
+- `LOQA_NODE_HEARTBEAT_INTERVAL_MS`
+- `LOQA_NODE_HEARTBEAT_TIMEOUT_MS`
 
 The bootstrap process exposes `/healthz` and `/readyz` endpoints and initializes OpenTelemetry tracing with a local stdout exporter. See `cmd/loqad --help` for additional flags.
+
+> **Note:** Loqa Core expects a NATS server with JetStream enabled to be running at the configured `bus.servers` endpoint (default `nats://localhost:4222`). You can start one locally with `nats-server --js` or the official Docker image.
 
 ## Architecture
 

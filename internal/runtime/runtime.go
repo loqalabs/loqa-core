@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/ambiware-labs/loqa-core/internal/bus"
+	"github.com/ambiware-labs/loqa-core/internal/capability"
 	"github.com/ambiware-labs/loqa-core/internal/config"
 )
 
@@ -19,6 +20,7 @@ type Runtime struct {
 	httpServer  *http.Server
 	tracerClose func(context.Context) error
 	busClient   *bus.Client
+	registry    *capability.Registry
 	ready       atomic.Bool
 	wg          sync.WaitGroup
 }
@@ -45,6 +47,11 @@ func (r *Runtime) Start(ctx context.Context) error {
 		return fmt.Errorf("failed to connect to message bus: %w", err)
 	}
 	r.busClient = busClient
+	registry, err := capability.NewRegistry(ctx, r.cfg.Node, r.busClient, r.logger)
+	if err != nil {
+		return fmt.Errorf("failed to start capability registry: %w", err)
+	}
+	r.registry = registry
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/healthz", r.handleHealth)
@@ -75,6 +82,9 @@ func (r *Runtime) Start(ctx context.Context) error {
 	if err := r.httpServer.Shutdown(shutdownCtx); err != nil {
 		r.logger.Error("http shutdown error", slog.String("error", err.Error()))
 	}
+	if r.registry != nil {
+		r.registry.Close()
+	}
 	if r.busClient != nil {
 		r.busClient.Close()
 	}
@@ -95,7 +105,7 @@ func (r *Runtime) handleHealth(w http.ResponseWriter, _ *http.Request) {
 }
 
 func (r *Runtime) handleReady(w http.ResponseWriter, _ *http.Request) {
-	if r.ready.Load() && r.busClient != nil && r.busClient.Healthy() {
+	if r.ready.Load() && r.busClient != nil && r.busClient.Healthy() && (r.registry == nil || r.registry.Healthy()) {
 		w.WriteHeader(http.StatusOK)
 		_, _ = w.Write([]byte("ready"))
 		return

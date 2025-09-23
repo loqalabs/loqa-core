@@ -14,3 +14,13 @@ bus:
   token: ""
   tls_insecure: false
   connect_timeout_ms: 2000
+node:
+  id: loqa-node-1
+  role: runtime
+  heartbeat_interval_ms: 2000
+  heartbeat_timeout_ms: 6000
+  capabilities:
+    - name: runtime.core
+      tier: balanced
+      attributes:
+        modality: orchestration
