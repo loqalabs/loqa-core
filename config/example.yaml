@@ -6,3 +6,11 @@ http:
 telemetry:
   log_level: info
   otlp_endpoint: ""
+bus:
+  servers:
+    - nats://localhost:4222
+  username: ""
+  password: ""
+  token: ""
+  tls_insecure: false
+  connect_timeout_ms: 2000

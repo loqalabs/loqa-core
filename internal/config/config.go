@@ -26,6 +26,16 @@ type Config struct {
 	Environment string          `yaml:"environment"`
 	HTTP        HTTPConfig      `yaml:"http"`
 	Telemetry   TelemetryConfig `yaml:"telemetry"`
+	Bus         BusConfig       `yaml:"bus"`
+}
+
+type BusConfig struct {
+	Servers        []string `yaml:"servers"`
+	Username       string   `yaml:"username"`
+	Password       string   `yaml:"password"`
+	Token          string   `yaml:"token"`
+	TLSInsecure    bool     `yaml:"tls_insecure"`
+	ConnectTimeout int      `yaml:"connect_timeout_ms"`
 }
 
 func Default() Config {
@@ -39,6 +49,10 @@ func Default() Config {
 		Telemetry: TelemetryConfig{
 			LogLevel:     "info",
 			OTLPEndpoint: "",
+		},
+		Bus: BusConfig{
+			Servers:        []string{"nats://localhost:4222"},
+			ConnectTimeout: 2000,
 		},
 	}
 }
@@ -73,6 +87,12 @@ func applyEnvOverrides(cfg *Config) {
 	overrideInt(&cfg.HTTP.Port, "LOQA_HTTP_PORT")
 	overrideString(&cfg.Telemetry.LogLevel, "LOQA_TELEMETRY_LOG_LEVEL")
 	overrideString(&cfg.Telemetry.OTLPEndpoint, "LOQA_TELEMETRY_OTLP_ENDPOINT")
+	overrideStringSlice(&cfg.Bus.Servers, "LOQA_BUS_SERVERS")
+	overrideString(&cfg.Bus.Username, "LOQA_BUS_USERNAME")
+	overrideString(&cfg.Bus.Password, "LOQA_BUS_PASSWORD")
+	overrideString(&cfg.Bus.Token, "LOQA_BUS_TOKEN")
+	overrideBool(&cfg.Bus.TLSInsecure, "LOQA_BUS_TLS_INSECURE")
+	overrideInt(&cfg.Bus.ConnectTimeout, "LOQA_BUS_CONNECT_TIMEOUT_MS")
 }
 
 func overrideString(target *string, envKey string) {
@@ -89,12 +109,38 @@ func overrideInt(target *int, envKey string) {
 	}
 }
 
+func overrideBool(target *bool, envKey string) {
+	if value, ok := os.LookupEnv(envKey); ok {
+		if parsed, err := strconv.ParseBool(value); err == nil {
+			*target = parsed
+		}
+	}
+}
+
+func overrideStringSlice(target *[]string, envKey string) {
+	if value, ok := os.LookupEnv(envKey); ok {
+		parts := strings.Split(value, ",")
+		var trimmed []string
+		for _, p := range parts {
+			if s := strings.TrimSpace(p); s != "" {
+				trimmed = append(trimmed, s)
+			}
+		}
+		if len(trimmed) > 0 {
+			*target = trimmed
+		}
+	}
+}
+
 func validate(cfg Config) error {
 	if cfg.RuntimeName == "" {
 		return errors.New("runtime_name must not be empty")
 	}
 	if cfg.HTTP.Port <= 0 || cfg.HTTP.Port > 65535 {
 		return errors.New("http.port must be between 1 and 65535")
+	}
+	if len(cfg.Bus.Servers) == 0 {
+		return errors.New("bus.servers must not be empty")
 	}
 	return nil
 }

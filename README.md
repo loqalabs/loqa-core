@@ -28,6 +28,12 @@ If no config file is supplied the runtime loads defaults and respects the follow
 - `LOQA_HTTP_PORT`
 - `LOQA_TELEMETRY_LOG_LEVEL`
 - `LOQA_TELEMETRY_OTLP_ENDPOINT`
+- `LOQA_BUS_SERVERS` (comma-separated list)
+- `LOQA_BUS_USERNAME`
+- `LOQA_BUS_PASSWORD`
+- `LOQA_BUS_TOKEN`
+- `LOQA_BUS_TLS_INSECURE`
+- `LOQA_BUS_CONNECT_TIMEOUT_MS`
 
 The bootstrap process exposes `/healthz` and `/readyz` endpoints and initializes OpenTelemetry tracing with a local stdout exporter. See `cmd/loqad --help` for additional flags.
 
