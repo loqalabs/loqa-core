@@ -22,6 +22,11 @@ func TestEnvOverrides(t *testing.T) {
 	t.Setenv("LOQA_NODE_ROLE", "runtime")
 	t.Setenv("LOQA_NODE_HEARTBEAT_INTERVAL_MS", "1500")
 	t.Setenv("LOQA_NODE_HEARTBEAT_TIMEOUT_MS", "5000")
+	t.Setenv("LOQA_EVENT_STORE_PATH", "./tmp.db")
+	t.Setenv("LOQA_EVENT_STORE_RETENTION_MODE", "persistent")
+	t.Setenv("LOQA_EVENT_STORE_RETENTION_DAYS", "7")
+	t.Setenv("LOQA_EVENT_STORE_MAX_SESSIONS", "123")
+	t.Setenv("LOQA_EVENT_STORE_VACUUM_ON_START", "true")
 
 	cfg, err := Load("")
 	if err != nil {
@@ -48,5 +53,20 @@ func TestEnvOverrides(t *testing.T) {
 	}
 	if cfg.Node.HeartbeatTimeout != 5000 {
 		t.Fatalf("expected heartbeat timeout override")
+	}
+	if cfg.EventStore.Path != "./tmp.db" {
+		t.Fatalf("expected event store path override")
+	}
+	if cfg.EventStore.RetentionMode != "persistent" {
+		t.Fatalf("expected event store retention mode override")
+	}
+	if cfg.EventStore.RetentionDays != 7 {
+		t.Fatalf("expected event store retention days override")
+	}
+	if cfg.EventStore.MaxSessions != 123 {
+		t.Fatalf("expected event store max sessions override")
+	}
+	if !cfg.EventStore.VacuumOnStart {
+		t.Fatalf("expected event store vacuum flag override")
 	}
 }

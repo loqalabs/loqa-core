@@ -12,6 +12,7 @@ import (
 	"github.com/ambiware-labs/loqa-core/internal/bus"
 	"github.com/ambiware-labs/loqa-core/internal/capability"
 	"github.com/ambiware-labs/loqa-core/internal/config"
+	"github.com/ambiware-labs/loqa-core/internal/eventstore"
 )
 
 type Runtime struct {
@@ -21,6 +22,7 @@ type Runtime struct {
 	tracerClose func(context.Context) error
 	busClient   *bus.Client
 	registry    *capability.Registry
+	eventStore  *eventstore.Store
 	ready       atomic.Bool
 	wg          sync.WaitGroup
 }
@@ -52,6 +54,11 @@ func (r *Runtime) Start(ctx context.Context) error {
 		return fmt.Errorf("failed to start capability registry: %w", err)
 	}
 	r.registry = registry
+	eventStore, err := eventstore.Open(ctx, r.cfg.EventStore, r.logger)
+	if err != nil {
+		return fmt.Errorf("failed to initialize event store: %w", err)
+	}
+	r.eventStore = eventStore
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/healthz", r.handleHealth)
@@ -84,6 +91,11 @@ func (r *Runtime) Start(ctx context.Context) error {
 	}
 	if r.registry != nil {
 		r.registry.Close()
+	}
+	if r.eventStore != nil {
+		if err := r.eventStore.Close(); err != nil {
+			r.logger.Warn("event store close error", slog.String("error", err.Error()))
+		}
 	}
 	if r.busClient != nil {
 		r.busClient.Close()

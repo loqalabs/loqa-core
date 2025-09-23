@@ -1,0 +1,7 @@
+# Generated data directories and databases
+/data/
+*.db
+
+# Go build artifacts
+bin/
+go-build/

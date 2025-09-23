@@ -22,12 +22,13 @@ type HTTPConfig struct {
 }
 
 type Config struct {
-	RuntimeName string          `yaml:"runtime_name"`
-	Environment string          `yaml:"environment"`
-	HTTP        HTTPConfig      `yaml:"http"`
-	Telemetry   TelemetryConfig `yaml:"telemetry"`
-	Bus         BusConfig       `yaml:"bus"`
-	Node        NodeConfig      `yaml:"node"`
+	RuntimeName string           `yaml:"runtime_name"`
+	Environment string           `yaml:"environment"`
+	HTTP        HTTPConfig       `yaml:"http"`
+	Telemetry   TelemetryConfig  `yaml:"telemetry"`
+	Bus         BusConfig        `yaml:"bus"`
+	Node        NodeConfig       `yaml:"node"`
+	EventStore  EventStoreConfig `yaml:"event_store"`
 }
 
 type BusConfig struct {
@@ -40,17 +41,25 @@ type BusConfig struct {
 }
 
 type NodeConfig struct {
-	ID                 string             `yaml:"id"`
-	Role               string             `yaml:"role"`
-	HeartbeatInterval  int                `yaml:"heartbeat_interval_ms"`
-	HeartbeatTimeout   int                `yaml:"heartbeat_timeout_ms"`
-	Capabilities       []NodeCapability   `yaml:"capabilities"`
+	ID                string           `yaml:"id"`
+	Role              string           `yaml:"role"`
+	HeartbeatInterval int              `yaml:"heartbeat_interval_ms"`
+	HeartbeatTimeout  int              `yaml:"heartbeat_timeout_ms"`
+	Capabilities      []NodeCapability `yaml:"capabilities"`
 }
 
 type NodeCapability struct {
 	Name       string            `yaml:"name"`
 	Tier       string            `yaml:"tier"`
 	Attributes map[string]string `yaml:"attributes"`
+}
+
+type EventStoreConfig struct {
+	Path          string `yaml:"path"`
+	RetentionMode string `yaml:"retention_mode"`
+	RetentionDays int    `yaml:"retention_days"`
+	MaxSessions   int    `yaml:"max_sessions"`
+	VacuumOnStart bool   `yaml:"vacuum_on_start"`
 }
 
 func Default() Config {
@@ -77,6 +86,12 @@ func Default() Config {
 			Capabilities: []NodeCapability{
 				{Name: "runtime.core", Tier: "balanced"},
 			},
+		},
+		EventStore: EventStoreConfig{
+			Path:          "./data/loqa-events.db",
+			RetentionMode: "session",
+			RetentionDays: 30,
+			MaxSessions:   10000,
 		},
 	}
 }
@@ -121,6 +136,11 @@ func applyEnvOverrides(cfg *Config) {
 	overrideString(&cfg.Node.Role, "LOQA_NODE_ROLE")
 	overrideInt(&cfg.Node.HeartbeatInterval, "LOQA_NODE_HEARTBEAT_INTERVAL_MS")
 	overrideInt(&cfg.Node.HeartbeatTimeout, "LOQA_NODE_HEARTBEAT_TIMEOUT_MS")
+	overrideString(&cfg.EventStore.Path, "LOQA_EVENT_STORE_PATH")
+	overrideString(&cfg.EventStore.RetentionMode, "LOQA_EVENT_STORE_RETENTION_MODE")
+	overrideInt(&cfg.EventStore.RetentionDays, "LOQA_EVENT_STORE_RETENTION_DAYS")
+	overrideInt(&cfg.EventStore.MaxSessions, "LOQA_EVENT_STORE_MAX_SESSIONS")
+	overrideBool(&cfg.EventStore.VacuumOnStart, "LOQA_EVENT_STORE_VACUUM_ON_START")
 }
 
 func overrideString(target *string, envKey string) {
@@ -181,6 +201,18 @@ func validate(cfg Config) error {
 	}
 	if len(cfg.Node.Capabilities) == 0 {
 		return errors.New("node.capabilities must not be empty")
+	}
+	if cfg.EventStore.Path == "" {
+		return errors.New("event_store.path must not be empty")
+	}
+	switch cfg.EventStore.RetentionMode {
+	case "ephemeral", "session", "persistent":
+		// ok
+	default:
+		return errors.New("event_store.retention_mode must be one of ephemeral|session|persistent")
+	}
+	if cfg.EventStore.RetentionDays < 0 {
+		return errors.New("event_store.retention_days must be >= 0")
 	}
 	return nil
 }
