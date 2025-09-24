@@ -28,6 +28,9 @@ const (
 	SubjectLLMRequest         = "nlu.request"
 	SubjectLLMResponsePartial = "nlu.response.partial"
 	SubjectLLMResponseFinal   = "nlu.response.final"
+	SubjectTTSRequest         = "tts.request"
+	SubjectTTSAudio           = "tts.audio"
+	SubjectTTSDone            = "tts.done"
 )
 
 // LLMRequest represents a prompt sent to the language model harness.
@@ -52,4 +55,31 @@ type LLMResponse struct {
 	CompletionTokens int       `json:"completion_tokens,omitempty"`
 	LatencyMS        int64     `json:"latency_ms,omitempty"`
 	Timestamp        time.Time `json:"timestamp"`
+}
+
+// TTSRequest asks the TTS service to synthesize a phrase.
+type TTSRequest struct {
+	SessionID string `json:"session_id"`
+	Text      string `json:"text"`
+	Voice     string `json:"voice,omitempty"`
+	Target    string `json:"target,omitempty"`
+	TraceID   string `json:"trace_id,omitempty"`
+}
+
+// AudioChunk carries synthesized PCM audio destined for output devices.
+type AudioChunk struct {
+	SessionID  string `json:"session_id"`
+	Target     string `json:"target,omitempty"`
+	Sequence   int    `json:"sequence"`
+	SampleRate int    `json:"sample_rate"`
+	Channels   int    `json:"channels"`
+	PCM        []byte `json:"pcm"`
+	Final      bool   `json:"final"`
+}
+
+type TTSStatus struct {
+	SessionID string    `json:"session_id"`
+	Target    string    `json:"target,omitempty"`
+	Completed bool      `json:"completed"`
+	Timestamp time.Time `json:"timestamp"`
 }

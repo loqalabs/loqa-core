@@ -15,6 +15,7 @@ import (
 	"github.com/ambiware-labs/loqa-core/internal/eventstore"
 	"github.com/ambiware-labs/loqa-core/internal/llm"
 	"github.com/ambiware-labs/loqa-core/internal/stt"
+	"github.com/ambiware-labs/loqa-core/internal/tts"
 )
 
 type Runtime struct {
@@ -27,6 +28,7 @@ type Runtime struct {
 	eventStore    *eventstore.Store
 	sttService    *stt.Service
 	llmService    *llm.Service
+	ttsService    *tts.Service
 	metricsServer *http.Server
 	ready         atomic.Bool
 	wg            sync.WaitGroup
@@ -109,6 +111,27 @@ func (r *Runtime) Start(ctx context.Context) error {
 		r.llmService = service
 	}
 
+	if r.cfg.TTS.Enabled {
+		var synth tts.Synthesizer
+		var err error
+		switch r.cfg.TTS.Mode {
+		case "exec":
+			synth, err = tts.NewExecSynth(r.cfg.TTS.Command, r.cfg.TTS.SampleRate, r.cfg.TTS.Channels)
+		case "mock", "":
+			synth = tts.NewMockSynth(r.cfg.TTS.SampleRate, r.cfg.TTS.Channels)
+		default:
+			return fmt.Errorf("unsupported TTS mode %q", r.cfg.TTS.Mode)
+		}
+		if err != nil {
+			return fmt.Errorf("failed to configure TTS synthesizer: %w", err)
+		}
+		service := tts.NewService(ctx, r.cfg.TTS, r.busClient, synth, r.logger)
+		if err := service.Start(); err != nil {
+			return fmt.Errorf("start TTS service: %w", err)
+		}
+		r.ttsService = service
+	}
+
 	mux := http.NewServeMux()
 	mux.HandleFunc("/healthz", r.handleHealth)
 	mux.HandleFunc("/readyz", r.handleReady)
@@ -164,6 +187,9 @@ func (r *Runtime) Start(ctx context.Context) error {
 	if r.llmService != nil {
 		r.llmService.Close()
 	}
+	if r.ttsService != nil {
+		r.ttsService.Close()
+	}
 	if r.metricsServer != nil {
 		if err := r.metricsServer.Shutdown(shutdownCtx); err != nil {
 			r.logger.Warn("metrics server shutdown error", slog.String("error", err.Error()))
@@ -196,7 +222,8 @@ func (r *Runtime) handleHealth(w http.ResponseWriter, _ *http.Request) {
 func (r *Runtime) handleReady(w http.ResponseWriter, _ *http.Request) {
 	sttHealthy := r.sttService == nil || r.sttService.Healthy()
 	llmHealthy := r.llmService == nil || r.llmService.Healthy()
-	if r.ready.Load() && r.busClient != nil && r.busClient.Healthy() && (r.registry == nil || r.registry.Healthy()) && sttHealthy && llmHealthy {
+	ttsHealthy := r.ttsService == nil || r.ttsService.Healthy()
+	if r.ready.Load() && r.busClient != nil && r.busClient.Healthy() && (r.registry == nil || r.registry.Healthy()) && sttHealthy && llmHealthy && ttsHealthy {
 		w.WriteHeader(http.StatusOK)
 		_, _ = w.Write([]byte("ready"))
 		return
