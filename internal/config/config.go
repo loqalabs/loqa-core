@@ -32,6 +32,7 @@ type Config struct {
 	Node        NodeConfig       `yaml:"node"`
 	EventStore  EventStoreConfig `yaml:"event_store"`
 	STT         STTConfig        `yaml:"stt"`
+	LLM         LLMConfig        `yaml:"llm"`
 }
 
 type BusConfig struct {
@@ -78,6 +79,18 @@ type STTConfig struct {
 	PublishInterim  bool   `yaml:"publish_interim"`
 }
 
+type LLMConfig struct {
+	Enabled       bool    `yaml:"enabled"`
+	Mode          string  `yaml:"mode"` // mock, ollama, exec
+	Endpoint      string  `yaml:"endpoint"`
+	Command       string  `yaml:"command"`
+	ModelFast     string  `yaml:"model_fast"`
+	ModelBalanced string  `yaml:"model_balanced"`
+	DefaultTier   string  `yaml:"default_tier"`
+	MaxTokens     int     `yaml:"max_tokens"`
+	Temperature   float64 `yaml:"temperature"`
+}
+
 func Default() Config {
 	return Config{
 		RuntimeName: "loqa-runtime",
@@ -118,6 +131,16 @@ func Default() Config {
 			Channels:        1,
 			FrameDurationMS: 20,
 			PartialEveryMS:  800,
+		},
+		LLM: LLMConfig{
+			Enabled:       false,
+			Mode:          "mock",
+			Endpoint:      "http://localhost:11434",
+			ModelFast:     "llama3.2:latest",
+			ModelBalanced: "llama3.2:latest",
+			DefaultTier:   "balanced",
+			MaxTokens:     256,
+			Temperature:   0.7,
 		},
 	}
 }
@@ -179,6 +202,15 @@ func applyEnvOverrides(cfg *Config) {
 	overrideInt(&cfg.STT.FrameDurationMS, "LOQA_STT_FRAME_DURATION_MS")
 	overrideInt(&cfg.STT.PartialEveryMS, "LOQA_STT_PARTIAL_EVERY_MS")
 	overrideBool(&cfg.STT.PublishInterim, "LOQA_STT_PUBLISH_INTERIM")
+	overrideBool(&cfg.LLM.Enabled, "LOQA_LLM_ENABLED")
+	overrideString(&cfg.LLM.Mode, "LOQA_LLM_MODE")
+	overrideString(&cfg.LLM.Endpoint, "LOQA_LLM_ENDPOINT")
+	overrideString(&cfg.LLM.Command, "LOQA_LLM_COMMAND")
+	overrideString(&cfg.LLM.ModelFast, "LOQA_LLM_MODEL_FAST")
+	overrideString(&cfg.LLM.ModelBalanced, "LOQA_LLM_MODEL_BALANCED")
+	overrideString(&cfg.LLM.DefaultTier, "LOQA_LLM_DEFAULT_TIER")
+	overrideInt(&cfg.LLM.MaxTokens, "LOQA_LLM_MAX_TOKENS")
+	overrideFloat(&cfg.LLM.Temperature, "LOQA_LLM_TEMPERATURE")
 }
 
 func overrideString(target *string, envKey string) {
@@ -214,6 +246,14 @@ func overrideStringSlice(target *[]string, envKey string) {
 		}
 		if len(trimmed) > 0 {
 			*target = trimmed
+		}
+	}
+}
+
+func overrideFloat(target *float64, envKey string) {
+	if value, ok := os.LookupEnv(envKey); ok {
+		if parsed, err := strconv.ParseFloat(value, 64); err == nil {
+			*target = parsed
 		}
 	}
 }
@@ -264,6 +304,22 @@ func validate(cfg Config) error {
 		}
 		if cfg.STT.Mode == "exec" && cfg.STT.Command == "" {
 			return errors.New("stt.command must be set when mode=exec")
+		}
+	}
+	if cfg.LLM.Enabled {
+		switch cfg.LLM.Mode {
+		case "mock", "ollama", "exec":
+		default:
+			return errors.New("llm.mode must be one of mock|ollama|exec")
+		}
+		if cfg.LLM.Mode == "ollama" && cfg.LLM.Endpoint == "" {
+			return errors.New("llm.endpoint must be set when mode=ollama")
+		}
+		if cfg.LLM.Mode == "exec" && cfg.LLM.Command == "" {
+			return errors.New("llm.command must be set when mode=exec")
+		}
+		if cfg.LLM.MaxTokens < 0 {
+			return errors.New("llm.max_tokens must be >= 0")
 		}
 	}
 	return nil
