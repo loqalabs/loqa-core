@@ -12,9 +12,9 @@ import (
 )
 
 type TelemetryConfig struct {
-	LogLevel     string `yaml:"log_level"`
-	OTLPEndpoint string `yaml:"otlp_endpoint"`
-	OTLPInsecure bool   `yaml:"otlp_insecure"`
+	LogLevel       string `yaml:"log_level"`
+	OTLPEndpoint   string `yaml:"otlp_endpoint"`
+	OTLPInsecure   bool   `yaml:"otlp_insecure"`
 	PrometheusBind string `yaml:"prometheus_bind"`
 }
 
@@ -33,6 +33,7 @@ type Config struct {
 	EventStore  EventStoreConfig `yaml:"event_store"`
 	STT         STTConfig        `yaml:"stt"`
 	LLM         LLMConfig        `yaml:"llm"`
+	TTS         TTSConfig        `yaml:"tts"`
 }
 
 type BusConfig struct {
@@ -91,6 +92,16 @@ type LLMConfig struct {
 	Temperature   float64 `yaml:"temperature"`
 }
 
+type TTSConfig struct {
+	Enabled         bool   `yaml:"enabled"`
+	Mode            string `yaml:"mode"`
+	Command         string `yaml:"command"`
+	Voice           string `yaml:"voice"`
+	SampleRate      int    `yaml:"sample_rate"`
+	Channels        int    `yaml:"channels"`
+	ChunkDurationMS int    `yaml:"chunk_duration_ms"`
+}
+
 func Default() Config {
 	return Config{
 		RuntimeName: "loqa-runtime",
@@ -100,9 +111,9 @@ func Default() Config {
 			Port: 8080,
 		},
 		Telemetry: TelemetryConfig{
-			LogLevel:        "info",
-			OTLPEndpoint:    "",
-			OTLPInsecure:    true,
+			LogLevel:       "info",
+			OTLPEndpoint:   "",
+			OTLPInsecure:   true,
 			PrometheusBind: ":9091",
 		},
 		Bus: BusConfig{
@@ -141,6 +152,13 @@ func Default() Config {
 			DefaultTier:   "balanced",
 			MaxTokens:     256,
 			Temperature:   0.7,
+		},
+		TTS: TTSConfig{
+			Enabled:         false,
+			Mode:            "mock",
+			SampleRate:      22050,
+			Channels:        1,
+			ChunkDurationMS: 400,
 		},
 	}
 }
@@ -211,6 +229,13 @@ func applyEnvOverrides(cfg *Config) {
 	overrideString(&cfg.LLM.DefaultTier, "LOQA_LLM_DEFAULT_TIER")
 	overrideInt(&cfg.LLM.MaxTokens, "LOQA_LLM_MAX_TOKENS")
 	overrideFloat(&cfg.LLM.Temperature, "LOQA_LLM_TEMPERATURE")
+	overrideBool(&cfg.TTS.Enabled, "LOQA_TTS_ENABLED")
+	overrideString(&cfg.TTS.Mode, "LOQA_TTS_MODE")
+	overrideString(&cfg.TTS.Command, "LOQA_TTS_COMMAND")
+	overrideString(&cfg.TTS.Voice, "LOQA_TTS_VOICE")
+	overrideInt(&cfg.TTS.SampleRate, "LOQA_TTS_SAMPLE_RATE")
+	overrideInt(&cfg.TTS.Channels, "LOQA_TTS_CHANNELS")
+	overrideInt(&cfg.TTS.ChunkDurationMS, "LOQA_TTS_CHUNK_DURATION_MS")
 }
 
 func overrideString(target *string, envKey string) {
@@ -320,6 +345,22 @@ func validate(cfg Config) error {
 		}
 		if cfg.LLM.MaxTokens < 0 {
 			return errors.New("llm.max_tokens must be >= 0")
+		}
+	}
+	if cfg.TTS.Enabled {
+		switch cfg.TTS.Mode {
+		case "mock", "exec":
+		default:
+			return errors.New("tts.mode must be one of mock|exec")
+		}
+		if cfg.TTS.Mode == "exec" && cfg.TTS.Command == "" {
+			return errors.New("tts.command must be set when mode=exec")
+		}
+		if cfg.TTS.SampleRate <= 0 {
+			return errors.New("tts.sample_rate must be positive")
+		}
+		if cfg.TTS.Channels <= 0 {
+			return errors.New("tts.channels must be positive")
 		}
 	}
 	return nil

@@ -45,6 +45,32 @@ If no config file is supplied the runtime loads defaults and respects the follow
 - `LOQA_EVENT_STORE_RETENTION_DAYS`
 - `LOQA_EVENT_STORE_MAX_SESSIONS`
 - `LOQA_EVENT_STORE_VACUUM_ON_START`
+- `LOQA_STT_ENABLED`
+- `LOQA_STT_MODE`
+- `LOQA_STT_COMMAND`
+- `LOQA_STT_MODEL_PATH`
+- `LOQA_STT_LANGUAGE`
+- `LOQA_STT_SAMPLE_RATE`
+- `LOQA_STT_CHANNELS`
+- `LOQA_STT_FRAME_DURATION_MS`
+- `LOQA_STT_PARTIAL_EVERY_MS`
+- `LOQA_STT_PUBLISH_INTERIM`
+- `LOQA_LLM_ENABLED`
+- `LOQA_LLM_MODE`
+- `LOQA_LLM_ENDPOINT`
+- `LOQA_LLM_COMMAND`
+- `LOQA_LLM_MODEL_FAST`
+- `LOQA_LLM_MODEL_BALANCED`
+- `LOQA_LLM_DEFAULT_TIER`
+- `LOQA_LLM_MAX_TOKENS`
+- `LOQA_LLM_TEMPERATURE`
+- `LOQA_TTS_ENABLED`
+- `LOQA_TTS_MODE`
+- `LOQA_TTS_COMMAND`
+- `LOQA_TTS_VOICE`
+- `LOQA_TTS_SAMPLE_RATE`
+- `LOQA_TTS_CHANNELS`
+- `LOQA_TTS_CHUNK_DURATION_MS`
 
 The bootstrap process exposes `/healthz` and `/readyz` endpoints and initializes OpenTelemetry tracing with a local stdout exporter. See `cmd/loqad --help` for additional flags.
 
@@ -98,6 +124,26 @@ llm:
 ```
 
 The service subscribes to `nlu.request` messages and publishes streaming completions on `nlu.response.partial`/`nlu.response.final`.
+
+## Text-to-Speech (TTS)
+
+Enable with `tts.enabled: true`. Modes:
+
+- `mock` – emits silent audio chunks for development.
+- `exec` – shells out to a command (for example `python3 tts/kokoro_stub.py`) that reads JSON from stdin (`{"text": "hello", "voice": "en-US", "sample_rate": 22050, "channels": 1}`) and writes newline-delimited JSON responses containing base64-encoded PCM buffers (`{"pcm_base64": "...", "final": true}`).
+
+```yaml
+tts:
+  enabled: true
+  mode: exec
+  command: "python3 tts/kokoro_stub.py"
+  voice: en-US
+  sample_rate: 22050
+  channels: 1
+  chunk_duration_ms: 400
+```
+
+Synthesized audio is published on `tts.audio`, with a `tts.done` signal once playback is complete at the originating device.
 
 ## Architecture
 

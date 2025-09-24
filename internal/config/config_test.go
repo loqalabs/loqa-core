@@ -19,6 +19,9 @@ func TestLoadDefaults(t *testing.T) {
 	if cfg.LLM.Mode != "mock" {
 		t.Fatalf("expected default LLM mode mock, got %s", cfg.LLM.Mode)
 	}
+	if cfg.TTS.Mode != "mock" {
+		t.Fatalf("expected default TTS mode mock, got %s", cfg.TTS.Mode)
+	}
 }
 
 func TestEnvOverrides(t *testing.T) {
@@ -54,6 +57,13 @@ func TestEnvOverrides(t *testing.T) {
 	t.Setenv("LOQA_LLM_DEFAULT_TIER", "fast")
 	t.Setenv("LOQA_LLM_MAX_TOKENS", "128")
 	t.Setenv("LOQA_LLM_TEMPERATURE", "0.5")
+	t.Setenv("LOQA_TTS_ENABLED", "true")
+	t.Setenv("LOQA_TTS_MODE", "exec")
+	t.Setenv("LOQA_TTS_COMMAND", "python3 tts/kokoro.py")
+	t.Setenv("LOQA_TTS_VOICE", "en-US")
+	t.Setenv("LOQA_TTS_SAMPLE_RATE", "48000")
+	t.Setenv("LOQA_TTS_CHANNELS", "2")
+	t.Setenv("LOQA_TTS_CHUNK_DURATION_MS", "200")
 
 	cfg, err := Load("")
 	if err != nil {
@@ -113,5 +123,14 @@ func TestEnvOverrides(t *testing.T) {
 	}
 	if cfg.LLM.Temperature != 0.5 {
 		t.Fatalf("expected LLM temperature override, got %f", cfg.LLM.Temperature)
+	}
+	if !cfg.TTS.Enabled || cfg.TTS.Mode != "exec" {
+		t.Fatalf("expected TTS overrides")
+	}
+	if cfg.TTS.SampleRate != 48000 || cfg.TTS.Channels != 2 {
+		t.Fatalf("expected TTS sample overrides")
+	}
+	if cfg.TTS.ChunkDurationMS != 200 {
+		t.Fatalf("expected TTS chunk override")
 	}
 }
