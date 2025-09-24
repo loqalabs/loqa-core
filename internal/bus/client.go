@@ -81,3 +81,7 @@ func (c *Client) JetStream() nats.JetStreamContext {
 func (c *Client) Conn() *nats.Conn {
 	return c.conn
 }
+
+func (c *Client) Logger() *slog.Logger {
+	return c.log
+}

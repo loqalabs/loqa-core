@@ -13,6 +13,9 @@ func TestLoadDefaults(t *testing.T) {
 	if cfg.Telemetry.PrometheusBind != ":9091" {
 		t.Fatalf("unexpected default prometheus bind: %s", cfg.Telemetry.PrometheusBind)
 	}
+	if cfg.STT.Mode != "mock" {
+		t.Fatalf("expected default STT mode mock, got %s", cfg.STT.Mode)
+	}
 }
 
 func TestEnvOverrides(t *testing.T) {
@@ -30,6 +33,16 @@ func TestEnvOverrides(t *testing.T) {
 	t.Setenv("LOQA_EVENT_STORE_RETENTION_DAYS", "7")
 	t.Setenv("LOQA_EVENT_STORE_MAX_SESSIONS", "123")
 	t.Setenv("LOQA_EVENT_STORE_VACUUM_ON_START", "true")
+	t.Setenv("LOQA_STT_ENABLED", "true")
+	t.Setenv("LOQA_STT_MODE", "exec")
+	t.Setenv("LOQA_STT_COMMAND", "python3 scripts/stt/transcribe.py")
+	t.Setenv("LOQA_STT_MODEL_PATH", "./models/ggml-base.bin")
+	t.Setenv("LOQA_STT_LANGUAGE", "en")
+	t.Setenv("LOQA_STT_SAMPLE_RATE", "44100")
+	t.Setenv("LOQA_STT_CHANNELS", "2")
+	t.Setenv("LOQA_STT_FRAME_DURATION_MS", "30")
+	t.Setenv("LOQA_STT_PARTIAL_EVERY_MS", "500")
+	t.Setenv("LOQA_STT_PUBLISH_INTERIM", "true")
 
 	cfg, err := Load("")
 	if err != nil {
@@ -71,5 +84,14 @@ func TestEnvOverrides(t *testing.T) {
 	}
 	if !cfg.EventStore.VacuumOnStart {
 		t.Fatalf("expected event store vacuum flag override")
+	}
+	if !cfg.STT.Enabled || cfg.STT.Mode != "exec" || cfg.STT.Command == "" {
+		t.Fatalf("expected STT overrides applied")
+	}
+	if cfg.STT.SampleRate != 44100 || cfg.STT.Channels != 2 {
+		t.Fatalf("expected STT sample overrides, got %d/%d", cfg.STT.SampleRate, cfg.STT.Channels)
+	}
+	if cfg.STT.PartialEveryMS != 500 || !cfg.STT.PublishInterim {
+		t.Fatalf("expected STT partial overrides")
 	}
 }

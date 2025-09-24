@@ -13,6 +13,7 @@ import (
 	"github.com/ambiware-labs/loqa-core/internal/capability"
 	"github.com/ambiware-labs/loqa-core/internal/config"
 	"github.com/ambiware-labs/loqa-core/internal/eventstore"
+	"github.com/ambiware-labs/loqa-core/internal/stt"
 )
 
 type Runtime struct {
@@ -23,6 +24,7 @@ type Runtime struct {
 	busClient     *bus.Client
 	registry      *capability.Registry
 	eventStore    *eventstore.Store
+	sttService    *stt.Service
 	metricsServer *http.Server
 	ready         atomic.Bool
 	wg            sync.WaitGroup
@@ -60,6 +62,27 @@ func (r *Runtime) Start(ctx context.Context) error {
 		return fmt.Errorf("failed to initialize event store: %w", err)
 	}
 	r.eventStore = eventStore
+
+	if r.cfg.STT.Enabled {
+		var recognizer stt.Recognizer
+		var err error
+		switch r.cfg.STT.Mode {
+		case "exec":
+			recognizer, err = stt.NewExecRecognizer(r.cfg.STT)
+			if err != nil {
+				return fmt.Errorf("failed to configure exec recognizer: %w", err)
+			}
+		case "mock", "":
+			recognizer = stt.NewMockRecognizer()
+		default:
+			return fmt.Errorf("unsupported STT mode %q", r.cfg.STT.Mode)
+		}
+		service := stt.NewService(ctx, r.cfg.STT, r.busClient, recognizer)
+		if err := service.Start(); err != nil {
+			return fmt.Errorf("start STT service: %w", err)
+		}
+		r.sttService = service
+	}
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/healthz", r.handleHealth)
@@ -110,6 +133,9 @@ func (r *Runtime) Start(ctx context.Context) error {
 	if r.registry != nil {
 		r.registry.Close()
 	}
+	if r.sttService != nil {
+		r.sttService.Close()
+	}
 	if r.metricsServer != nil {
 		if err := r.metricsServer.Shutdown(shutdownCtx); err != nil {
 			r.logger.Warn("metrics server shutdown error", slog.String("error", err.Error()))
@@ -140,7 +166,8 @@ func (r *Runtime) handleHealth(w http.ResponseWriter, _ *http.Request) {
 }
 
 func (r *Runtime) handleReady(w http.ResponseWriter, _ *http.Request) {
-	if r.ready.Load() && r.busClient != nil && r.busClient.Healthy() && (r.registry == nil || r.registry.Healthy()) {
+	sttHealthy := r.sttService == nil || r.sttService.Healthy()
+	if r.ready.Load() && r.busClient != nil && r.busClient.Healthy() && (r.registry == nil || r.registry.Healthy()) && sttHealthy {
 		w.WriteHeader(http.StatusOK)
 		_, _ = w.Write([]byte("ready"))
 		return

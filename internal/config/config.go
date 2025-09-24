@@ -31,6 +31,7 @@ type Config struct {
 	Bus         BusConfig        `yaml:"bus"`
 	Node        NodeConfig       `yaml:"node"`
 	EventStore  EventStoreConfig `yaml:"event_store"`
+	STT         STTConfig        `yaml:"stt"`
 }
 
 type BusConfig struct {
@@ -62,6 +63,19 @@ type EventStoreConfig struct {
 	RetentionDays int    `yaml:"retention_days"`
 	MaxSessions   int    `yaml:"max_sessions"`
 	VacuumOnStart bool   `yaml:"vacuum_on_start"`
+}
+
+type STTConfig struct {
+	Enabled         bool   `yaml:"enabled"`
+	Mode            string `yaml:"mode"`
+	Command         string `yaml:"command"`
+	ModelPath       string `yaml:"model_path"`
+	Language        string `yaml:"language"`
+	SampleRate      int    `yaml:"sample_rate"`
+	Channels        int    `yaml:"channels"`
+	FrameDurationMS int    `yaml:"frame_duration_ms"`
+	PartialEveryMS  int    `yaml:"partial_every_ms"`
+	PublishInterim  bool   `yaml:"publish_interim"`
 }
 
 func Default() Config {
@@ -96,6 +110,14 @@ func Default() Config {
 			RetentionMode: "session",
 			RetentionDays: 30,
 			MaxSessions:   10000,
+		},
+		STT: STTConfig{
+			Enabled:         false,
+			Mode:            "mock",
+			SampleRate:      16000,
+			Channels:        1,
+			FrameDurationMS: 20,
+			PartialEveryMS:  800,
 		},
 	}
 }
@@ -147,6 +169,16 @@ func applyEnvOverrides(cfg *Config) {
 	overrideInt(&cfg.EventStore.RetentionDays, "LOQA_EVENT_STORE_RETENTION_DAYS")
 	overrideInt(&cfg.EventStore.MaxSessions, "LOQA_EVENT_STORE_MAX_SESSIONS")
 	overrideBool(&cfg.EventStore.VacuumOnStart, "LOQA_EVENT_STORE_VACUUM_ON_START")
+	overrideBool(&cfg.STT.Enabled, "LOQA_STT_ENABLED")
+	overrideString(&cfg.STT.Mode, "LOQA_STT_MODE")
+	overrideString(&cfg.STT.Command, "LOQA_STT_COMMAND")
+	overrideString(&cfg.STT.ModelPath, "LOQA_STT_MODEL_PATH")
+	overrideString(&cfg.STT.Language, "LOQA_STT_LANGUAGE")
+	overrideInt(&cfg.STT.SampleRate, "LOQA_STT_SAMPLE_RATE")
+	overrideInt(&cfg.STT.Channels, "LOQA_STT_CHANNELS")
+	overrideInt(&cfg.STT.FrameDurationMS, "LOQA_STT_FRAME_DURATION_MS")
+	overrideInt(&cfg.STT.PartialEveryMS, "LOQA_STT_PARTIAL_EVERY_MS")
+	overrideBool(&cfg.STT.PublishInterim, "LOQA_STT_PUBLISH_INTERIM")
 }
 
 func overrideString(target *string, envKey string) {
@@ -222,6 +254,17 @@ func validate(cfg Config) error {
 	}
 	if cfg.Telemetry.PrometheusBind == "" {
 		return errors.New("telemetry.prometheus_bind must not be empty")
+	}
+	if cfg.STT.Enabled {
+		if cfg.STT.SampleRate <= 0 {
+			return errors.New("stt.sample_rate must be positive")
+		}
+		if cfg.STT.Channels <= 0 {
+			return errors.New("stt.channels must be positive")
+		}
+		if cfg.STT.Mode == "exec" && cfg.STT.Command == "" {
+			return errors.New("stt.command must be set when mode=exec")
+		}
 	}
 	return nil
 }

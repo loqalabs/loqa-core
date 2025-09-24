@@ -54,6 +54,27 @@ An on-disk SQLite event store is created at `event_store.path` (default `./data/
 
 To visualize traces/metrics/logs locally, set `LOQA_TELEMETRY_OTLP_ENDPOINT=localhost:4317` and run the docker-compose stack under `observability/`.
 
+## Speech-to-Text (STT)
+
+Set `stt.enabled: true` in the configuration to activate the streaming STT worker. Two modes are supported:
+
+- `mock` — emits synthetic transcripts, useful for development without a model.
+- `exec` — shells out to a command (for example the bundled `stt/faster_whisper.py` wrapper) that must return JSON `{ "text": "...", "confidence": 0.0 }` on stdout.
+
+Example `stt` configuration:
+
+```yaml
+stt:
+  enabled: true
+  mode: exec
+  command: "python3 stt/faster_whisper.py"
+  model_path: ./models/ggml-base.bin
+  language: en
+  publish_interim: false
+```
+
+> Install dependencies with `pip install faster-whisper` and download an appropriate Whisper model. The helper script caches models between invocations.
+
 ## Architecture
 
 Loqa is designed as a modular, distributed system that can scale across multiple local nodes:

@@ -1,6 +1,7 @@
 # Generated data directories and databases
 /data/
 *.db
+__pycache__/
 
 # Go build artifacts
 bin/
