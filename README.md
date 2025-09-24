@@ -149,6 +149,14 @@ tts:
 
 Synthesized audio is published on `tts.audio`, with a `tts.done` signal once playback is complete at the originating device.
 
+## Skills
+
+Skill packages declare metadata, runtime, and permissions in a `skill.yaml` manifest. Validate locally with:
+
+```bash
+go run ./cmd/loqa-skill validate --file skills/examples/timer/skill.yaml
+```
+
 ## Architecture
 
 Loqa is designed as a modular, distributed system that can scale across multiple local nodes:

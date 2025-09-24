@@ -1,0 +1,25 @@
+metadata:
+  name: timer
+  version: 0.1.0
+  description: Basic timer skill
+  author: Ambiware Labs
+  tags:
+    - timers
+runtime:
+  mode: wasm
+  module: build/timer.wasm
+  entrypoint: handle
+  host_version: v1
+capabilities:
+  bus:
+    publish:
+      - tts.request
+    subscribe:
+      - skill.timer.start
+  storage:
+    kv: true
+  timers: true
+permissions:
+  - event_store:read
+surfaces:
+  voice: true
