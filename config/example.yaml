@@ -32,3 +32,14 @@ event_store:
   retention_days: 30
   max_sessions: 10000
   vacuum_on_start: false
+stt:
+  enabled: false
+  mode: mock
+  command: "python3 stt/faster_whisper.py"
+  model_path: ./models/ggml-base.bin
+  language: en
+  sample_rate: 16000
+  channels: 1
+  frame_duration_ms: 20
+  partial_every_ms: 800
+  publish_interim: false
