@@ -71,6 +71,10 @@ If no config file is supplied the runtime loads defaults and respects the follow
 - `LOQA_TTS_SAMPLE_RATE`
 - `LOQA_TTS_CHANNELS`
 - `LOQA_TTS_CHUNK_DURATION_MS`
+- `LOQA_ROUTER_ENABLED`
+- `LOQA_ROUTER_DEFAULT_TIER`
+- `LOQA_ROUTER_DEFAULT_VOICE`
+- `LOQA_ROUTER_TARGET`
 
 The bootstrap process exposes `/healthz` and `/readyz` endpoints and initializes OpenTelemetry tracing with a local stdout exporter. See `cmd/loqad --help` for additional flags.
 

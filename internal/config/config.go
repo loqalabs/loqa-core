@@ -34,6 +34,7 @@ type Config struct {
 	STT         STTConfig        `yaml:"stt"`
 	LLM         LLMConfig        `yaml:"llm"`
 	TTS         TTSConfig        `yaml:"tts"`
+	Router      RouterConfig     `yaml:"router"`
 }
 
 type BusConfig struct {
@@ -102,6 +103,13 @@ type TTSConfig struct {
 	ChunkDurationMS int    `yaml:"chunk_duration_ms"`
 }
 
+type RouterConfig struct {
+	Enabled      bool   `yaml:"enabled"`
+	DefaultTier  string `yaml:"default_tier"`
+	DefaultVoice string `yaml:"default_voice"`
+	Target       string `yaml:"target"`
+}
+
 func Default() Config {
 	return Config{
 		RuntimeName: "loqa-runtime",
@@ -159,6 +167,12 @@ func Default() Config {
 			SampleRate:      22050,
 			Channels:        1,
 			ChunkDurationMS: 400,
+		},
+		Router: RouterConfig{
+			Enabled:      true,
+			DefaultTier:  "balanced",
+			DefaultVoice: "en-US",
+			Target:       "default",
 		},
 	}
 }
@@ -236,6 +250,10 @@ func applyEnvOverrides(cfg *Config) {
 	overrideInt(&cfg.TTS.SampleRate, "LOQA_TTS_SAMPLE_RATE")
 	overrideInt(&cfg.TTS.Channels, "LOQA_TTS_CHANNELS")
 	overrideInt(&cfg.TTS.ChunkDurationMS, "LOQA_TTS_CHUNK_DURATION_MS")
+	overrideBool(&cfg.Router.Enabled, "LOQA_ROUTER_ENABLED")
+	overrideString(&cfg.Router.DefaultTier, "LOQA_ROUTER_DEFAULT_TIER")
+	overrideString(&cfg.Router.DefaultVoice, "LOQA_ROUTER_DEFAULT_VOICE")
+	overrideString(&cfg.Router.Target, "LOQA_ROUTER_TARGET")
 }
 
 func overrideString(target *string, envKey string) {
@@ -361,6 +379,14 @@ func validate(cfg Config) error {
 		}
 		if cfg.TTS.Channels <= 0 {
 			return errors.New("tts.channels must be positive")
+		}
+	}
+	if cfg.Router.Enabled {
+		if cfg.Router.DefaultTier == "" {
+			cfg.Router.DefaultTier = "balanced"
+		}
+		if cfg.Router.DefaultVoice == "" {
+			cfg.Router.DefaultVoice = "en-US"
 		}
 	}
 	return nil

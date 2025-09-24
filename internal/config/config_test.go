@@ -22,6 +22,9 @@ func TestLoadDefaults(t *testing.T) {
 	if cfg.TTS.Mode != "mock" {
 		t.Fatalf("expected default TTS mode mock, got %s", cfg.TTS.Mode)
 	}
+	if !cfg.Router.Enabled {
+		t.Fatalf("expected router enabled by default")
+	}
 }
 
 func TestEnvOverrides(t *testing.T) {
@@ -64,6 +67,10 @@ func TestEnvOverrides(t *testing.T) {
 	t.Setenv("LOQA_TTS_SAMPLE_RATE", "48000")
 	t.Setenv("LOQA_TTS_CHANNELS", "2")
 	t.Setenv("LOQA_TTS_CHUNK_DURATION_MS", "200")
+	t.Setenv("LOQA_ROUTER_ENABLED", "true")
+	t.Setenv("LOQA_ROUTER_DEFAULT_TIER", "fast")
+	t.Setenv("LOQA_ROUTER_DEFAULT_VOICE", "en-GB")
+	t.Setenv("LOQA_ROUTER_TARGET", "livingroom")
 
 	cfg, err := Load("")
 	if err != nil {
@@ -132,5 +139,8 @@ func TestEnvOverrides(t *testing.T) {
 	}
 	if cfg.TTS.ChunkDurationMS != 200 {
 		t.Fatalf("expected TTS chunk override")
+	}
+	if !cfg.Router.Enabled || cfg.Router.DefaultTier != "fast" || cfg.Router.DefaultVoice != "en-GB" || cfg.Router.Target != "livingroom" {
+		t.Fatalf("expected router overrides")
 	}
 }

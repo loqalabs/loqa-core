@@ -53,3 +53,16 @@ llm:
   default_tier: balanced
   max_tokens: 256
   temperature: 0.7
+tts:
+  enabled: false
+  mode: mock
+  command: "python3 tts/kokoro_stub.py"
+  voice: en-US
+  sample_rate: 22050
+  channels: 1
+  chunk_duration_ms: 400
+router:
+  enabled: true
+  default_tier: balanced
+  default_voice: en-US
+  target: default

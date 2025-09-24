@@ -14,6 +14,7 @@ import (
 	"github.com/ambiware-labs/loqa-core/internal/config"
 	"github.com/ambiware-labs/loqa-core/internal/eventstore"
 	"github.com/ambiware-labs/loqa-core/internal/llm"
+	"github.com/ambiware-labs/loqa-core/internal/router"
 	"github.com/ambiware-labs/loqa-core/internal/stt"
 	"github.com/ambiware-labs/loqa-core/internal/tts"
 )
@@ -29,6 +30,7 @@ type Runtime struct {
 	sttService    *stt.Service
 	llmService    *llm.Service
 	ttsService    *tts.Service
+	routerService *router.Service
 	metricsServer *http.Server
 	ready         atomic.Bool
 	wg            sync.WaitGroup
@@ -132,6 +134,14 @@ func (r *Runtime) Start(ctx context.Context) error {
 		r.ttsService = service
 	}
 
+	if r.cfg.Router.Enabled {
+		service := router.NewService(ctx, r.cfg.Router, r.busClient, r.logger)
+		if err := service.Start(); err != nil {
+			return fmt.Errorf("start router service: %w", err)
+		}
+		r.routerService = service
+	}
+
 	mux := http.NewServeMux()
 	mux.HandleFunc("/healthz", r.handleHealth)
 	mux.HandleFunc("/readyz", r.handleReady)
@@ -190,6 +200,9 @@ func (r *Runtime) Start(ctx context.Context) error {
 	if r.ttsService != nil {
 		r.ttsService.Close()
 	}
+	if r.routerService != nil {
+		r.routerService.Close()
+	}
 	if r.metricsServer != nil {
 		if err := r.metricsServer.Shutdown(shutdownCtx); err != nil {
 			r.logger.Warn("metrics server shutdown error", slog.String("error", err.Error()))
@@ -223,7 +236,8 @@ func (r *Runtime) handleReady(w http.ResponseWriter, _ *http.Request) {
 	sttHealthy := r.sttService == nil || r.sttService.Healthy()
 	llmHealthy := r.llmService == nil || r.llmService.Healthy()
 	ttsHealthy := r.ttsService == nil || r.ttsService.Healthy()
-	if r.ready.Load() && r.busClient != nil && r.busClient.Healthy() && (r.registry == nil || r.registry.Healthy()) && sttHealthy && llmHealthy && ttsHealthy {
+	routerHealthy := r.routerService == nil || r.routerService.Healthy()
+	if r.ready.Load() && r.busClient != nil && r.busClient.Healthy() && (r.registry == nil || r.registry.Healthy()) && sttHealthy && llmHealthy && ttsHealthy && routerHealthy {
 		w.WriteHeader(http.StatusOK)
 		_, _ = w.Write([]byte("ready"))
 		return
