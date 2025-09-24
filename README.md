@@ -75,6 +75,30 @@ stt:
 
 > Install dependencies with `pip install faster-whisper` and download an appropriate Whisper model. The helper script caches models between invocations.
 
+## LLM Harness
+
+Enable the language model service via `llm.enabled: true`. Two backends are available:
+
+- `mock` – returns placeholder completions.
+- `ollama` – streams completions from a local Ollama server (default endpoint `http://localhost:11434`).
+- `exec` – shells out to a command that reads JSON from stdin and returns `{"content": "..."}` on stdout.
+
+Example Ollama configuration:
+
+```yaml
+llm:
+  enabled: true
+  mode: ollama
+  endpoint: http://localhost:11434
+  model_fast: llama3.2:latest
+  model_balanced: llama3.2:latest
+  default_tier: balanced
+  max_tokens: 256
+  temperature: 0.7
+```
+
+The service subscribes to `nlu.request` messages and publishes streaming completions on `nlu.response.partial`/`nlu.response.final`.
+
 ## Architecture
 
 Loqa is designed as a modular, distributed system that can scale across multiple local nodes:

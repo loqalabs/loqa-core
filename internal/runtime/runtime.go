@@ -13,6 +13,7 @@ import (
 	"github.com/ambiware-labs/loqa-core/internal/capability"
 	"github.com/ambiware-labs/loqa-core/internal/config"
 	"github.com/ambiware-labs/loqa-core/internal/eventstore"
+	"github.com/ambiware-labs/loqa-core/internal/llm"
 	"github.com/ambiware-labs/loqa-core/internal/stt"
 )
 
@@ -25,6 +26,7 @@ type Runtime struct {
 	registry      *capability.Registry
 	eventStore    *eventstore.Store
 	sttService    *stt.Service
+	llmService    *llm.Service
 	metricsServer *http.Server
 	ready         atomic.Bool
 	wg            sync.WaitGroup
@@ -84,6 +86,29 @@ func (r *Runtime) Start(ctx context.Context) error {
 		r.sttService = service
 	}
 
+	if r.cfg.LLM.Enabled {
+		var generator llm.Generator
+		var err error
+		switch r.cfg.LLM.Mode {
+		case "ollama":
+			generator = llm.NewOllamaGenerator(r.cfg.LLM.Endpoint, r.cfg.LLM.ModelFast, r.cfg.LLM.ModelBalanced)
+		case "exec":
+			generator, err = llm.NewExecGenerator(r.cfg.LLM.Command)
+		case "mock", "":
+			generator = llm.NewMockGenerator()
+		default:
+			return fmt.Errorf("unsupported LLM mode %q", r.cfg.LLM.Mode)
+		}
+		if err != nil {
+			return fmt.Errorf("failed to configure LLM generator: %w", err)
+		}
+		service := llm.NewService(ctx, r.cfg.LLM, r.busClient, generator, r.logger)
+		if err := service.Start(); err != nil {
+			return fmt.Errorf("start LLM service: %w", err)
+		}
+		r.llmService = service
+	}
+
 	mux := http.NewServeMux()
 	mux.HandleFunc("/healthz", r.handleHealth)
 	mux.HandleFunc("/readyz", r.handleReady)
@@ -136,6 +161,9 @@ func (r *Runtime) Start(ctx context.Context) error {
 	if r.sttService != nil {
 		r.sttService.Close()
 	}
+	if r.llmService != nil {
+		r.llmService.Close()
+	}
 	if r.metricsServer != nil {
 		if err := r.metricsServer.Shutdown(shutdownCtx); err != nil {
 			r.logger.Warn("metrics server shutdown error", slog.String("error", err.Error()))
@@ -167,7 +195,8 @@ func (r *Runtime) handleHealth(w http.ResponseWriter, _ *http.Request) {
 
 func (r *Runtime) handleReady(w http.ResponseWriter, _ *http.Request) {
 	sttHealthy := r.sttService == nil || r.sttService.Healthy()
-	if r.ready.Load() && r.busClient != nil && r.busClient.Healthy() && (r.registry == nil || r.registry.Healthy()) && sttHealthy {
+	llmHealthy := r.llmService == nil || r.llmService.Healthy()
+	if r.ready.Load() && r.busClient != nil && r.busClient.Healthy() && (r.registry == nil || r.registry.Healthy()) && sttHealthy && llmHealthy {
 		w.WriteHeader(http.StatusOK)
 		_, _ = w.Write([]byte("ready"))
 		return

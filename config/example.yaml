@@ -43,3 +43,13 @@ stt:
   frame_duration_ms: 20
   partial_every_ms: 800
   publish_interim: false
+llm:
+  enabled: false
+  mode: mock
+  endpoint: http://localhost:11434
+  command: "ollama run llama3.2"
+  model_fast: llama3.2:latest
+  model_balanced: llama3.2:latest
+  default_tier: balanced
+  max_tokens: 256
+  temperature: 0.7

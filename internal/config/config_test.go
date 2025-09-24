@@ -16,6 +16,9 @@ func TestLoadDefaults(t *testing.T) {
 	if cfg.STT.Mode != "mock" {
 		t.Fatalf("expected default STT mode mock, got %s", cfg.STT.Mode)
 	}
+	if cfg.LLM.Mode != "mock" {
+		t.Fatalf("expected default LLM mode mock, got %s", cfg.LLM.Mode)
+	}
 }
 
 func TestEnvOverrides(t *testing.T) {
@@ -43,6 +46,14 @@ func TestEnvOverrides(t *testing.T) {
 	t.Setenv("LOQA_STT_FRAME_DURATION_MS", "30")
 	t.Setenv("LOQA_STT_PARTIAL_EVERY_MS", "500")
 	t.Setenv("LOQA_STT_PUBLISH_INTERIM", "true")
+	t.Setenv("LOQA_LLM_ENABLED", "true")
+	t.Setenv("LOQA_LLM_MODE", "ollama")
+	t.Setenv("LOQA_LLM_ENDPOINT", "http://localhost:11434")
+	t.Setenv("LOQA_LLM_MODEL_FAST", "llama3.1:8b")
+	t.Setenv("LOQA_LLM_MODEL_BALANCED", "llama3.1:70b")
+	t.Setenv("LOQA_LLM_DEFAULT_TIER", "fast")
+	t.Setenv("LOQA_LLM_MAX_TOKENS", "128")
+	t.Setenv("LOQA_LLM_TEMPERATURE", "0.5")
 
 	cfg, err := Load("")
 	if err != nil {
@@ -93,5 +104,14 @@ func TestEnvOverrides(t *testing.T) {
 	}
 	if cfg.STT.PartialEveryMS != 500 || !cfg.STT.PublishInterim {
 		t.Fatalf("expected STT partial overrides")
+	}
+	if !cfg.LLM.Enabled || cfg.LLM.Mode != "ollama" {
+		t.Fatalf("expected LLM overrides")
+	}
+	if cfg.LLM.ModelFast != "llama3.1:8b" || cfg.LLM.MaxTokens != 128 {
+		t.Fatalf("expected LLM model/limits override")
+	}
+	if cfg.LLM.Temperature != 0.5 {
+		t.Fatalf("expected LLM temperature override, got %f", cfg.LLM.Temperature)
 	}
 }
