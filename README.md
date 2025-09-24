@@ -28,6 +28,8 @@ If no config file is supplied the runtime loads defaults and respects the follow
 - `LOQA_HTTP_PORT`
 - `LOQA_TELEMETRY_LOG_LEVEL`
 - `LOQA_TELEMETRY_OTLP_ENDPOINT`
+- `LOQA_TELEMETRY_OTLP_INSECURE`
+- `LOQA_TELEMETRY_PROMETHEUS_BIND`
 - `LOQA_BUS_SERVERS` (comma-separated list)
 - `LOQA_BUS_USERNAME`
 - `LOQA_BUS_PASSWORD`
@@ -49,6 +51,8 @@ The bootstrap process exposes `/healthz` and `/readyz` endpoints and initializes
 > **Note:** Loqa Core expects a NATS server with JetStream enabled to be running at the configured `bus.servers` endpoint (default `nats://localhost:4222`). You can start one locally with `nats-server --js` or the official Docker image.
 
 An on-disk SQLite event store is created at `event_store.path` (default `./data/loqa-events.db`) unless `event_store.retention_mode` is set to `ephemeral`. Use `session` for local replay debugging or `persistent` to honor retention windows (days and max sessions).
+
+To visualize traces/metrics/logs locally, set `LOQA_TELEMETRY_OTLP_ENDPOINT=localhost:4317` and run the docker-compose stack under `observability/`.
 
 ## Architecture
 
