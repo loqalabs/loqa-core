@@ -36,6 +36,14 @@ Feature requests are welcome! Please provide:
 5. Update documentation as needed
 6. Submit a pull request with a clear description of changes
 
+The CI pipeline automatically checks formatting, runs `go vet`, builds the TinyGo sample skills, and executes the unit tests. You can run everything locally with:
+
+```
+make ci
+```
+
+If you only need to fix formatting or run a subset of checks, see the targets in the repository `Makefile` (e.g., `make fmt`, `make lint`, `make skills`).
+
 ## Coding Standards
 
 - Follow existing code style and patterns
