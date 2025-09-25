@@ -1,25 +1,25 @@
 metadata:
   name: timer
   version: 0.1.0
-  description: Basic timer skill
+  description: Simple countdown timer skill that announces when time elapses.
   author: Ambiware Labs
-  tags:
-    - timers
 runtime:
   mode: wasm
   module: build/timer.wasm
-  entrypoint: handle
+  entrypoint: run
   host_version: v1
 capabilities:
   bus:
-    publish:
-      - tts.request
     subscribe:
       - skill.timer.start
-  storage:
-    kv: true
+      - skill.timer.cancel
+    publish:
+      - tts.request
+      - skill.timer.status
   timers: true
 permissions:
   - event_store:read
+  - bus:publish
 surfaces:
   voice: true
+  automations: true
