@@ -157,6 +157,10 @@ Skill packages declare metadata, runtime, and permissions in a `skill.yaml` mani
 go run ./cmd/loqa-skill validate --file skills/examples/timer/skill.yaml
 ```
 
+When `skills.enabled` is true in `config/example.yaml`, the runtime loads manifests from `skills.directory`, subscribes to declared NATS subjects, and invokes the corresponding WASM module for each event. Skills publish responses via the host API—`host.Publish` enforces both the `bus:publish` permission and the subjects enumerated in `capabilities.bus.publish`. All invocations and publish operations are recorded in the event-store audit log under the `skill:*` sessions configured by `skills.audit_privacy_scope`.
+
+See [`skills/AUTHORING_GUIDE.md`](skills/AUTHORING_GUIDE.md) for a step-by-step walkthrough on building TinyGo skills, defining manifests, and testing locally.
+
 ## Architecture
 
 Loqa is designed as a modular, distributed system that can scale across multiple local nodes:

@@ -26,6 +26,11 @@ node:
       tier: balanced
       attributes:
         modality: orchestration
+skills:
+  enabled: true
+  directory: ./skills
+  max_concurrency: 4
+  audit_privacy_scope: internal
 event_store:
   path: ./data/loqa-events.db
   retention_mode: session

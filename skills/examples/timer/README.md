@@ -12,10 +12,13 @@ tinygo build -o build/timer.wasm -target=wasi ./src
 
 ## Local smoke test
 
-The module logs through the host via `host_log`. You can emulate a timer request by passing JSON in the `LOQA_TIMER_REQUEST` environment variable when running the module with a WASI runtime (for example, `wasmtime`):
+The module logs through the host via `host_log`. You can emulate a timer request by passing JSON in the `LOQA_EVENT_PAYLOAD` environment variable and setting the subject the same way Loqa would:
 
 ```bash
-wasmtime run --env LOQA_TIMER_REQUEST='{"duration_ms":2000,"label":"tea"}' build/timer.wasm
+wasmtime run \
+  --env LOQA_EVENT_SUBJECT="skill.timer.start" \
+  --env LOQA_EVENT_PAYLOAD='{"duration_ms":2000,"label":"tea"}' \
+  build/timer.wasm
 ```
 
 The TinyGo entrypoint will pause for the requested duration and log start/complete messages.
