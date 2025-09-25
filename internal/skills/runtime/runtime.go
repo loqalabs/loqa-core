@@ -3,6 +3,7 @@ package runtime
 import (
 	"context"
 	"fmt"
+	"log"
 	"os"
 
 	"github.com/ambiware-labs/loqa-core/internal/skills/manifest"
@@ -19,6 +20,9 @@ type Runtime struct {
 // New creates a new skill runtime using wazero.
 func New(ctx context.Context) (*Runtime, error) {
 	rt := wazero.NewRuntime(ctx)
+	if err := instantiateHostModule(ctx, rt); err != nil {
+		return nil, fmt.Errorf("instantiate host module: %w", err)
+	}
 	if _, err := wasi_snapshot_preview1.Instantiate(ctx, rt); err != nil {
 		return nil, fmt.Errorf("instantiate WASI: %w", err)
 	}
@@ -100,5 +104,36 @@ func (s *Skill) Invoke(ctx context.Context) error {
 		return fmt.Errorf("skill entrypoint not available")
 	}
 	_, err := s.entry.Call(ctx)
+	return err
+}
+
+func instantiateHostModule(ctx context.Context, rt wazero.Runtime) error {
+	logger := log.New(os.Stdout, "[skill] ", 0)
+	builder := rt.NewHostModuleBuilder("env")
+	hostLogFn := api.GoModuleFunc(func(_ context.Context, mod api.Module, stack []uint64) {
+		if len(stack) < 2 {
+			return
+		}
+		ptr := api.DecodeU32(stack[0])
+		length := api.DecodeU32(stack[1])
+		if length == 0 {
+			return
+		}
+		mem := mod.Memory()
+		if mem == nil {
+			logger.Printf("host_log: module has no memory (ptr=%d len=%d)", ptr, length)
+			return
+		}
+		data, ok := mem.Read(ptr, length)
+		if !ok {
+			logger.Printf("host_log: unable to read memory (ptr=%d len=%d)", ptr, length)
+			return
+		}
+		logger.Print(string(data))
+	})
+	builder.NewFunctionBuilder().
+		WithGoModuleFunction(hostLogFn, []api.ValueType{api.ValueTypeI32, api.ValueTypeI32}, nil).
+		Export("host_log")
+	_, err := builder.Instantiate(ctx)
 	return err
 }

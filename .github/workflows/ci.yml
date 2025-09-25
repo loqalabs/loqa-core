@@ -7,12 +7,47 @@ on:
     branches: ["main"]
 
 jobs:
-  placeholder:
+  skills-examples:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-      - name: CI placeholder
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.22.x"
+
+      - name: Set up TinyGo
+        uses: acifani/setup-tinygo@v2
+        with:
+          tinygo-version: "0.39.0"
+
+      - name: Verify toolchains
         run: |
-          echo "CI pipeline scaffolding in place."
-          echo "Replace this step with real build/test jobs as the codebase matures."
+          go version
+          tinygo version
+          tinygo env GOVERSION
+
+      - name: Build timer skill
+        run: |
+          cd skills/examples/timer
+          mkdir -p build
+          tinygo build -o build/timer.wasm -target=wasi ./src
+
+      - name: Validate timer manifest
+        run: |
+          go run ./cmd/loqa-skill validate --file skills/examples/timer/skill.yaml
+
+      - name: Build smart-home bridge skill
+        run: |
+          cd skills/examples/smart-home
+          mkdir -p build
+          tinygo build -o build/smart-home.wasm -target=wasi ./src
+
+      - name: Validate smart-home manifest
+        run: |
+          go run ./cmd/loqa-skill validate --file skills/examples/smart-home/skill.yaml
+
+      - name: Go unit tests
+        run: go test ./...
