@@ -1,0 +1,111 @@
+# Loqa Getting Started Guide
+
+Welcome! This guide walks you through running the Loqa runtime locally with the bundled sample skills. You should be up and responding to voice-style events in less than 15 minutes.
+
+## Prerequisites
+
+| Requirement | Notes |
+| --- | --- |
+| Go 1.22+ | Install via [golang.org](https://go.dev/dl) or your package manager. |
+| TinyGo 0.39+ | Required for building the WASM example skills. Install from [tinygo.org](https://tinygo.org/getting-started/install). |
+| NATS 2.10+ with JetStream | Any deployment works: Docker, local binary, or an existing cluster. |
+| `nats` CLI (optional but recommended) | Lets you publish test subjects quickly. Install via `brew install nats-io/nats/nats` or see the [NATS CLI docs](https://docs.nats.io/nats-tools/nats-cli). |
+
+> **Tip:** On macOS or Linux, you can use Homebrew: `brew install go tinygo nats-io/nats/nats`.
+
+## 1. Start NATS
+
+Loqa currently assumes a local NATS server with JetStream enabled. The quickest way to launch one is with Docker:
+
+```bash
+docker run --rm -p 4222:4222 nats:2.10-alpine -js
+```
+
+Leave this running in its own terminal. (If you already run NATS elsewhere, update `config/example.yaml` with your server address.)
+
+## 2. Clone the repository
+
+```bash
+git clone https://github.com/ambiware-labs/loqa-core.git
+cd loqa-core
+```
+
+## 3. Build the sample skills
+
+The repo ships with two reference skills (timer + smart-home bridge). Build them and validate the manifests:
+
+```bash
+make skills
+```
+
+This command compiles the TinyGo modules and runs `loqa-skill validate` on each manifest. If you see no errors, the skills are ready to load.
+
+## 4. Launch the runtime
+
+Use the provided example configuration to start Loqa:
+
+```bash
+make run
+```
+
+Under the hood this executes:
+
+```bash
+go run ./cmd/loqad --config ./config/example.yaml
+```
+
+You should see log lines similar to:
+
+```
+{"level":"INFO","msg":"telemetry initialized","exporter":"stdout"}
+{"level":"INFO","msg":"connected to NATS","servers":"nats://localhost:4222"}
+{"level":"INFO","msg":"runtime started","addr":"0.0.0.0:8080"}
+```
+
+## 5. Trigger a skill
+
+With the runtime active, publish a timer request:
+
+```bash
+nats pub skill.timer.start '{"duration_ms":3000,"label":"tea"}'
+```
+
+Expected behavior:
+
+- Loqa logs the invocation and publishes status updates to `skill.timer.status`.
+- A TTS request is emitted on `tts.request` when the timer completes (visible in the logs for now).
+
+You can inspect messages with `nats sub`:
+
+```bash
+nats sub skill.timer.status
+nats sub tts.request
+```
+
+## 6. Explore the smart-home example
+
+Simulate a Home Assistant command:
+
+```bash
+nats pub skill.home.command '{"room":"kitchen","device":"light.kitchen","action":"turn_on","payload":"brightness=80"}'
+```
+
+The smart-home skill logs the request and publishes a status update on `skill.home.status`.
+
+## 7. Next steps
+
+- **Read the Skills Runtime Guide:** Dive into manifests, permissions, and how to build your own WASM modules in [`skills/README.md`](../skills/README.md).
+- **Check the MVP Backlog:** See what’s planned in [`loqa-meta`](https://github.com/ambiware-labs/loqa-meta/blob/main/roadmap/MVP_BACKLOG.md).
+- **Join Discussions:** Share ideas or ask questions in [GitHub Discussions](https://github.com/ambiware-labs/loqa-core/discussions).
+- **Try observability:** Spin up the Grafana/Tempo/Loki stack with `make -C observability docker-up` and watch traces/metrics.
+
+## Troubleshooting
+
+| Symptom | Possible Fix |
+| --- | --- |
+| `connect to nats: no servers available` | Ensure NATS is running and reachable at the address in `config/example.yaml`. |
+| TinyGo build failures | Reinstall TinyGo 0.39+, or confirm `tinygo version` matches the CI version. |
+| `nats` command not found | Install the NATS CLI or use another tool (e.g., `curl`) to publish HTTP requests to the JetStream REST API. |
+| Skill publish errors (`publish disallowed`) | Update the skill manifest to include the subject under `capabilities.bus.publish` and declare the `bus:publish` permission. |
+
+Welcome to Loqa! If you run into problems not covered here, open a Discussion or issue—we’re actively shaping the MVP based on feedback.
