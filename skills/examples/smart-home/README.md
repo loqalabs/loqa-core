@@ -18,7 +18,8 @@ The module reads configuration from environment variables so you can experiment 
 wasmtime run \
   --env HOMEASSISTANT_URL="http://localhost:8123" \
   --env HOMEASSISTANT_TOKEN="demo-token" \
-  --env LOQA_SMART_HOME_INTENT='{"room":"kitchen","device":"light.kitchen","action":"turn_on","payload":"brightness=80"}' \
+  --env LOQA_EVENT_SUBJECT="skill.home.command" \
+  --env LOQA_EVENT_PAYLOAD='{"room":"kitchen","device":"light.kitchen","action":"turn_on","payload":"brightness=80"}' \
   build/smart-home.wasm
 ```
 

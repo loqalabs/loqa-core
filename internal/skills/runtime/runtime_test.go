@@ -31,7 +31,7 @@ permissions:
 
 func TestRuntimeLoadMissingFile(t *testing.T) {
 	ctx := context.Background()
-	rt, err := runtime.New(ctx)
+	rt, err := runtime.New(ctx, runtime.HostBindings{})
 	if err != nil {
 		t.Fatalf("create runtime: %v", err)
 	}
@@ -48,7 +48,7 @@ func TestRuntimeLoadMissingFile(t *testing.T) {
 		t.Fatalf("load manifest: %v", err)
 	}
 
-	if _, err := rt.Load(ctx, mf); err == nil {
+	if _, err := rt.Load(ctx, mf, map[string]string{}); err == nil {
 		t.Fatalf("expected error for missing module")
 	}
 }

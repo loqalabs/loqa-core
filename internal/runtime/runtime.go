@@ -15,6 +15,7 @@ import (
 	"github.com/ambiware-labs/loqa-core/internal/eventstore"
 	"github.com/ambiware-labs/loqa-core/internal/llm"
 	"github.com/ambiware-labs/loqa-core/internal/router"
+	skillservice "github.com/ambiware-labs/loqa-core/internal/skills/service"
 	"github.com/ambiware-labs/loqa-core/internal/stt"
 	"github.com/ambiware-labs/loqa-core/internal/tts"
 )
@@ -30,6 +31,7 @@ type Runtime struct {
 	sttService    *stt.Service
 	llmService    *llm.Service
 	ttsService    *tts.Service
+	skillsService *skillservice.Service
 	routerService *router.Service
 	metricsServer *http.Server
 	ready         atomic.Bool
@@ -68,6 +70,14 @@ func (r *Runtime) Start(ctx context.Context) error {
 		return fmt.Errorf("failed to initialize event store: %w", err)
 	}
 	r.eventStore = eventStore
+
+	if r.cfg.Skills.Enabled {
+		svc, err := skillservice.New(ctx, r.cfg.Skills, r.busClient, r.eventStore, r.logger)
+		if err != nil {
+			return fmt.Errorf("start skills service: %w", err)
+		}
+		r.skillsService = svc
+	}
 
 	if r.cfg.STT.Enabled {
 		var recognizer stt.Recognizer
@@ -203,6 +213,9 @@ func (r *Runtime) Start(ctx context.Context) error {
 	if r.routerService != nil {
 		r.routerService.Close()
 	}
+	if r.skillsService != nil {
+		r.skillsService.Close()
+	}
 	if r.metricsServer != nil {
 		if err := r.metricsServer.Shutdown(shutdownCtx); err != nil {
 			r.logger.Warn("metrics server shutdown error", slog.String("error", err.Error()))
@@ -237,7 +250,8 @@ func (r *Runtime) handleReady(w http.ResponseWriter, _ *http.Request) {
 	llmHealthy := r.llmService == nil || r.llmService.Healthy()
 	ttsHealthy := r.ttsService == nil || r.ttsService.Healthy()
 	routerHealthy := r.routerService == nil || r.routerService.Healthy()
-	if r.ready.Load() && r.busClient != nil && r.busClient.Healthy() && (r.registry == nil || r.registry.Healthy()) && sttHealthy && llmHealthy && ttsHealthy && routerHealthy {
+	skillsHealthy := r.skillsService == nil || r.skillsService.Healthy()
+	if r.ready.Load() && r.busClient != nil && r.busClient.Healthy() && (r.registry == nil || r.registry.Healthy()) && sttHealthy && llmHealthy && ttsHealthy && routerHealthy && skillsHealthy {
 		w.WriteHeader(http.StatusOK)
 		_, _ = w.Write([]byte("ready"))
 		return

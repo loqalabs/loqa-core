@@ -31,6 +31,7 @@ type Config struct {
 	Bus         BusConfig        `yaml:"bus"`
 	Node        NodeConfig       `yaml:"node"`
 	EventStore  EventStoreConfig `yaml:"event_store"`
+	Skills      SkillsConfig     `yaml:"skills"`
 	STT         STTConfig        `yaml:"stt"`
 	LLM         LLMConfig        `yaml:"llm"`
 	TTS         TTSConfig        `yaml:"tts"`
@@ -110,6 +111,13 @@ type RouterConfig struct {
 	Target       string `yaml:"target"`
 }
 
+type SkillsConfig struct {
+	Enabled      bool   `yaml:"enabled"`
+	Directory    string `yaml:"directory"`
+	Concurrency  int    `yaml:"max_concurrency"`
+	AuditPrivacy string `yaml:"audit_privacy_scope"`
+}
+
 func Default() Config {
 	return Config{
 		RuntimeName: "loqa-runtime",
@@ -136,6 +144,12 @@ func Default() Config {
 			Capabilities: []NodeCapability{
 				{Name: "runtime.core", Tier: "balanced"},
 			},
+		},
+		Skills: SkillsConfig{
+			Enabled:      true,
+			Directory:    "./skills",
+			Concurrency:  4,
+			AuditPrivacy: "internal",
 		},
 		EventStore: EventStoreConfig{
 			Path:          "./data/loqa-events.db",
@@ -337,6 +351,17 @@ func validate(cfg Config) error {
 	}
 	if cfg.Telemetry.PrometheusBind == "" {
 		return errors.New("telemetry.prometheus_bind must not be empty")
+	}
+	if cfg.Skills.Enabled {
+		if cfg.Skills.Directory == "" {
+			return errors.New("skills.directory must not be empty when skills are enabled")
+		}
+		if cfg.Skills.Concurrency <= 0 {
+			return errors.New("skills.max_concurrency must be >= 1")
+		}
+	}
+	if cfg.Skills.AuditPrivacy == "" {
+		return errors.New("skills.audit_privacy_scope must not be empty")
 	}
 	if cfg.STT.Enabled {
 		if cfg.STT.SampleRate <= 0 {

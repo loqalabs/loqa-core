@@ -28,8 +28,10 @@ Repeat the same steps for other examples like `smart-home`.
 
 Both examples accept environment variables so you can simulate inbound events before integrating with Loqa:
 
-- `LOQA_TIMER_REQUEST` drives the timer countdown example.
-- `LOQA_SMART_HOME_INTENT` plus optional Home Assistant credentials drive the smart-home bridge.
+- `LOQA_EVENT_SUBJECT` and `LOQA_EVENT_PAYLOAD` emulate the NATS message that triggered the invocation.
+- Optional context such as `LOQA_EVENT_REPLY` and `LOQA_INVOCATION_ID` are provided automatically by the runtime.
+
+The shared TinyGo helper exposes `host.Log(msg string)` and `host.Publish(subject string, payload []byte)` for communicating with the host. Publishing requires the manifest to declare `bus:publish` permission and list allowed subjects under `capabilities.bus.publish`.
 
 See the README inside each example directory for precise commands.
 

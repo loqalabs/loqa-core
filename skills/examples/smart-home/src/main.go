@@ -29,9 +29,9 @@ func run() {
 		host.Log("HOMEASSISTANT_TOKEN not provided; requests will fail against a real instance")
 	}
 
-	payload := os.Getenv("LOQA_SMART_HOME_INTENT")
+	payload := os.Getenv("LOQA_EVENT_PAYLOAD")
 	if payload == "" {
-		host.Log("no intent supplied; set LOQA_SMART_HOME_INTENT to test locally")
+		host.Log("no intent supplied; set LOQA_EVENT_PAYLOAD to test locally")
 		return
 	}
 
@@ -59,6 +59,13 @@ func run() {
 	host.Log("would call Home Assistant at " + endpoint)
 	host.Log("authorization token present: " + boolText(token != ""))
 	host.Log("request body: " + string(body))
+
+	sendStatus(intent{
+		Room:    cmd.Room,
+		Device:  cmd.Device,
+		Action:  cmd.Action,
+		Payload: cmd.Payload,
+	})
 }
 
 func boolText(v bool) string {
@@ -66,6 +73,21 @@ func boolText(v bool) string {
 		return "yes"
 	}
 	return "no"
+}
+
+func sendStatus(st intent) {
+	status := map[string]string{
+		"device": st.Device,
+		"action": st.Action,
+		"room":   st.Room,
+		"state":  "forwarded",
+	}
+	if st.Payload != "" {
+		status["payload"] = st.Payload
+	}
+	if data, err := json.Marshal(status); err == nil {
+		host.Publish("skill.home.status", data)
+	}
 }
 
 func main() {}

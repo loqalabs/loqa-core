@@ -9,41 +9,77 @@ import (
 	"github.com/ambiware-labs/loqa-core/skills/examples/internal/host"
 )
 
-// requestEnvelope models the expected payload for a timer start event.
-type requestEnvelope struct {
+type timerRequest struct {
 	DurationMS int    `json:"duration_ms"`
 	Label      string `json:"label"`
 }
 
+type timerStatus struct {
+	Label   string `json:"label"`
+	State   string `json:"state"`
+	Seconds int    `json:"seconds_remaining,omitempty"`
+}
+
+type ttsRequest struct {
+	Text  string `json:"text"`
+	Voice string `json:"voice,omitempty"`
+}
+
 //export run
 func run() {
-	host.Log("timer skill initialized")
+	host.Log("timer skill invocation")
+	subject := os.Getenv("LOQA_EVENT_SUBJECT")
+	payload := os.Getenv("LOQA_EVENT_PAYLOAD")
 
-	data := os.Getenv("LOQA_TIMER_REQUEST")
-	if data == "" {
-		host.Log("no timer payload provided; set LOQA_TIMER_REQUEST to test locally")
+	switch subject {
+	case "skill.timer.start":
+		handleStart(payload)
+	case "skill.timer.cancel":
+		host.Log("cancel timers not implemented yet")
+	default:
+		host.Log("unrecognized subject: " + subject)
+	}
+}
+
+func handleStart(payload string) {
+	if payload == "" {
+		host.Log("missing payload for timer start")
 		return
 	}
-
-	var req requestEnvelope
-	if err := json.Unmarshal([]byte(data), &req); err != nil {
-		host.Log("failed to decode timer payload: " + err.Error())
+	var req timerRequest
+	if err := json.Unmarshal([]byte(payload), &req); err != nil {
+		host.Log("failed to decode timer request: " + err.Error())
 		return
 	}
 	if req.DurationMS <= 0 {
-		host.Log("missing or invalid duration_ms in request")
+		host.Log("timer duration must be positive")
 		return
 	}
-
-	delay := time.Duration(req.DurationMS) * time.Millisecond
 	label := req.Label
 	if label == "" {
 		label = "timer"
 	}
+	delay := time.Duration(req.DurationMS) * time.Millisecond
 
+	reportStatus(timerStatus{Label: label, State: "started", Seconds: req.DurationMS / 1000})
 	host.Log(fmt.Sprintf("starting %s for %s", label, delay))
 	time.Sleep(delay)
+	reportStatus(timerStatus{Label: label, State: "completed"})
 	host.Log(fmt.Sprintf("%s complete", label))
+	announceCompletion(label)
+}
+
+func reportStatus(status timerStatus) {
+	if data, err := json.Marshal(status); err == nil {
+		host.Publish("skill.timer.status", data)
+	}
+}
+
+func announceCompletion(label string) {
+	msg := ttsRequest{Text: fmt.Sprintf("%s timer complete", label)}
+	if data, err := json.Marshal(msg); err == nil {
+		host.Publish("tts.request", data)
+	}
 }
 
 func main() {}
