@@ -14,11 +14,13 @@ Loqa Core contains the foundational components for building and running a distri
 
 ## Getting Started
 
-Install prerequisites (Go 1.21+). Then:
+- **Read the Quickstart:** Follow the step-by-step guide in [`docs/GETTING_STARTED.md`](docs/GETTING_STARTED.md) to install prerequisites, build the sample skills, and publish your first events.
+- **Launch the runtime quickly:**
 
-```bash
-go run ./cmd/loqad --config ./config/example.yaml
-```
+  ```bash
+  make skills   # builds TinyGo examples and validates manifests
+  make run      # runs go run ./cmd/loqad --config ./config/example.yaml
+  ```
 
 If no config file is supplied the runtime loads defaults and respects the following environment overrides:
 

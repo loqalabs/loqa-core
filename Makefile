@@ -1,6 +1,6 @@
 FILES := $(shell git ls-files '*.go')
 
-.PHONY: fmt fmt-check vet test skills lint ci
+.PHONY: fmt fmt-check vet test skills run lint ci
 
 fmt:
 	@if [ -n "$(FILES)" ]; then gofmt -w $(FILES); fi
@@ -26,6 +26,9 @@ skills:
 	cd skills/examples/smart-home && mkdir -p build && tinygo build -o build/smart-home.wasm -target=wasi ./src
 	go run ./cmd/loqa-skill validate --file skills/examples/timer/skill.yaml
 	go run ./cmd/loqa-skill validate --file skills/examples/smart-home/skill.yaml
+
+run:
+	go run ./cmd/loqad --config ./config/example.yaml
 
 lint: fmt-check vet
 
