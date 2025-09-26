@@ -12,6 +12,11 @@ Loqa Core contains the foundational components for building and running a distri
 - **Documentation**: Technical docs and API references
 - **Proto Schemas**: Protocol definitions for inter-service communication
 
+## Downloads
+
+- **Nightly snapshots:** Every day the [Nightly builds](https://github.com/ambiware-labs/loqa-core/actions/workflows/nightly.yml) workflow publishes artifacts that contain precompiled `loqad`, `loqa-skill`, sample configs, docs, and the TinyGo example skill packages. Download the archive that matches your platform (e.g., `loqa-core_nightly-YYYYMMDD_linux_amd64.tar.gz`), verify it with the accompanying `.sha256`, and extract it with `tar -xzf`.
+- **Tagged releases:** Pushing a `v*` tag produces versioned bundles via the [Release workflow](https://github.com/ambiware-labs/loqa-core/actions/workflows/release.yml). These are attached automatically to the corresponding GitHub Release page.
+
 ## Getting Started
 
 - **Read the Quickstart:** Follow the step-by-step guide in [`docs/GETTING_STARTED.md`](docs/GETTING_STARTED.md) to install prerequisites, build the sample skills, and publish your first events.

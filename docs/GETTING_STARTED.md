@@ -13,6 +13,30 @@ Welcome! This guide walks you through running the Loqa runtime locally with the 
 
 > **Tip:** On macOS or Linux, you can use Homebrew: `brew install go tinygo nats-io/nats/nats`.
 
+### Optional: Download a nightly bundle
+
+If you want to skip building the binaries manually, grab the latest snapshot artifact:
+
+1. Visit the [Nightly builds workflow](https://github.com/ambiware-labs/loqa-core/actions/workflows/nightly.yml) and open the most recent successful run.
+2. Download the archive that matches your platform, for example `loqa-core_nightly-YYYYMMDD_linux_amd64.tar.gz`.
+3. (Recommended) Validate the checksum with `shasum -a 256 -c loqa-core_nightly-YYYYMMDD_linux_amd64.tar.gz.sha256`.
+4. Extract the bundle and add the binaries to your `PATH`:
+
+   ```bash
+   tar -xzf loqa-core_nightly-YYYYMMDD_linux_amd64.tar.gz
+   export PATH="$PWD/loqa-core_nightly-YYYYMMDD_linux_amd64/bin:$PATH"
+   ```
+
+You can perform the same download via the GitHub CLI:
+
+```bash
+gh run download \
+  --repo ambiware-labs/loqa-core \
+  --workflow nightly.yml \
+  --latest \
+  --name nightly-YYYYMMDD-linux-amd64
+```
+
 ## 1. Start NATS
 
 Loqa currently assumes a local NATS server with JetStream enabled. The quickest way to launch one is with Docker:
