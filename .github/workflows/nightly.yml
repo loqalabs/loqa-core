@@ -1,0 +1,104 @@
+name: Nightly builds
+
+on:
+  schedule:
+    - cron: '0 6 * * *'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - goos: linux
+            goarch: amd64
+          - goos: linux
+            goarch: arm64
+          - goos: darwin
+            goarch: amd64
+          - goos: darwin
+            goarch: arm64
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.24.x'
+
+      - name: Set up TinyGo
+        uses: acifani/setup-tinygo@v2
+        with:
+          tinygo-version: '0.39.0'
+
+      - name: Determine build metadata
+        id: meta
+        run: |
+          timestamp=$(date -u +"%Y%m%d")
+          echo "version=nightly-${timestamp}" >> "$GITHUB_OUTPUT"
+
+      - name: Verify toolchains
+        run: |
+          go version
+          tinygo version
+
+      - name: Run unit tests
+        run: go test ./...
+
+      - name: Build reference skills
+        run: make skills
+
+      - name: Assemble bundle
+        env:
+          GOOS: ${{ matrix.goos }}
+          GOARCH: ${{ matrix.goarch }}
+          VERSION: ${{ steps.meta.outputs.version }}
+        run: |
+          set -euo pipefail
+
+          BUNDLE="loqa-core_${VERSION}_${GOOS}_${GOARCH}"
+          ROOT="dist/${BUNDLE}"
+          BIN_DIR="${ROOT}/bin"
+
+          rm -rf dist
+          mkdir -p "$BIN_DIR" "${ROOT}/config" "${ROOT}/docs" "${ROOT}/skills"
+
+          EXT=""
+          if [ "$GOOS" = "windows" ]; then
+            EXT=".exe"
+          fi
+
+          echo "Building loqad ${VERSION} for ${GOOS}/${GOARCH}"
+          CGO_ENABLED=0 GOOS=$GOOS GOARCH=$GOARCH go build \
+            -ldflags "-s -w -X main.version=${VERSION}" \
+            -o "${BIN_DIR}/loqad${EXT}" \
+            ./cmd/loqad
+
+          echo "Building loqa-skill ${VERSION} for ${GOOS}/${GOARCH}"
+          CGO_ENABLED=0 GOOS=$GOOS GOARCH=$GOARCH go build \
+            -ldflags "-s -w -X main.version=${VERSION}" \
+            -o "${BIN_DIR}/loqa-skill${EXT}" \
+            ./cmd/loqa-skill
+
+          cp LICENSE "${ROOT}/"
+          cp README.md "${ROOT}/"
+          cp docs/GETTING_STARTED.md "${ROOT}/docs/GETTING_STARTED.md"
+          cp config/example.yaml "${ROOT}/config/example.yaml"
+
+          mkdir -p "${ROOT}/skills/examples"
+          cp -R skills/examples/timer "${ROOT}/skills/examples/timer"
+          cp -R skills/examples/smart-home "${ROOT}/skills/examples/smart-home"
+
+          tar -C dist -czf "dist/${BUNDLE}.tar.gz" "${BUNDLE}"
+          sha256sum "dist/${BUNDLE}.tar.gz" | sed 's#  dist/#  #' > "dist/${BUNDLE}.tar.gz.sha256"
+
+      - name: Upload bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.meta.outputs.version }}-${{ matrix.goos }}-${{ matrix.goarch }}
+          path: |
+            dist/loqa-core_${{ steps.meta.outputs.version }}_${{ matrix.goos }}_${{ matrix.goarch }}.tar.gz
+            dist/loqa-core_${{ steps.meta.outputs.version }}_${{ matrix.goos }}_${{ matrix.goarch }}.tar.gz.sha256
+          retention-days: 7
