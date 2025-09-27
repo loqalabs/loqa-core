@@ -91,6 +91,13 @@ An on-disk SQLite event store is created at `event_store.path` (default `./data/
 
 To visualize traces/metrics/logs locally, set `LOQA_TELEMETRY_OTLP_ENDPOINT=localhost:4317` and run the docker-compose stack under `observability/`.
 
+## Documentation
+
+- **Installation guide:** [`docs/INSTALLATION.md`](docs/INSTALLATION.md) covers prerequisites, configuration, and verifying your environment.
+- **Quickstart:** [`docs/GETTING_STARTED.md`](docs/GETTING_STARTED.md) walks through the timer and smart-home skills, plus the optional voice pipeline loop.
+- **Architecture overview:** [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) explains the runtime, message bus subjects, and extension points.
+- **Hosted experience:** The same content is available on [loqa.ambiware.ai/docs](https://loqa.ambiware.ai/docs) with a responsive layout and copy-ready commands.
+
 ## Speech-to-Text (STT)
 
 Set `stt.enabled: true` in the configuration to activate the streaming STT worker. Two modes are supported:
