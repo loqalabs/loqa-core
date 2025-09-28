@@ -12,6 +12,16 @@ Loqa Core contains the foundational components for building and running a distri
 - **Documentation**: Technical docs and API references
 - **Proto Schemas**: Protocol definitions for inter-service communication
 
+## Hybrid Open-Core Model
+
+Loqa blends three pillars so the project stays weird, local, and sustainable:
+
+- **Public-good core:** The runtime, protocols, and tooling remain MIT-licensed and community governed—see the [license](LICENSE) and the [governance notes](https://github.com/ambiware-labs/loqa-meta/tree/main/governance).
+- **Modular extensibility:** Skills and adapters plug in like VS Code extensions. Start with the [authoring guide](skills/AUTHORING_GUIDE.md) and follow the skills spec work in [loqa-core#37](https://github.com/ambiware-labs/loqa-core/issues/37).
+- **Value-add ecosystem:** Optional managed services, premium skill packs, and curated hardware bundles will live outside the OSS core. Track the roadmap in [loqa-meta#28](https://github.com/ambiware-labs/loqa-meta/issues/28) and partner outreach in [loqa-meta#29](https://github.com/ambiware-labs/loqa-meta/issues/29).
+
+Want to contribute? Drop into the [Extension Labs resources](https://github.com/ambiware-labs/loqa-meta/issues/27) or weigh in on the marketplace RFC ([loqa-meta#26](https://github.com/ambiware-labs/loqa-meta/issues/26)).
+
 ## Downloads
 
 - **Nightly snapshots:** Every day the [Nightly builds](https://github.com/ambiware-labs/loqa-core/actions/workflows/nightly.yml) workflow publishes artifacts that contain precompiled `loqad`, `loqa-skill`, sample configs, docs, and the TinyGo example skill packages. Download the archive that matches your platform (e.g., `loqa-core_nightly-YYYYMMDD_linux_amd64.tar.gz`), verify it with the accompanying `.sha256`, and extract it with `tar -xzf`.
