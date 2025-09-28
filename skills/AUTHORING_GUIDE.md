@@ -1,6 +1,6 @@
 # Loqa Skill Authoring Guide
 
-This guide walks through building, packaging, and registering third-party skills for the Loqa runtime.
+This guide walks through building, packaging, and registering third-party skills for the Loqa runtime. For a formal description of the manifest schema and host ABI, see [`docs/skills/SPEC.md`](../docs/skills/SPEC.md).
 
 ## 1. Project layout
 

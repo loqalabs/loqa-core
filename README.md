@@ -106,6 +106,7 @@ To visualize traces/metrics/logs locally, set `LOQA_TELEMETRY_OTLP_ENDPOINT=loca
 - **Installation guide:** [`docs/INSTALLATION.md`](docs/INSTALLATION.md) covers prerequisites, configuration, and verifying your environment.
 - **Quickstart:** [`docs/GETTING_STARTED.md`](docs/GETTING_STARTED.md) walks through the timer and smart-home skills, plus the optional voice pipeline loop.
 - **Architecture overview:** [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) explains the runtime, message bus subjects, and extension points.
+- **Skills spec:** [`docs/skills/SPEC.md`](docs/skills/SPEC.md) defines the manifest schema and host ABI for `host_version: v1`.
 - **Hosted experience:** The same content is available on [loqa.ambiware.ai/docs](https://loqa.ambiware.ai/docs) with a responsive layout and copy-ready commands.
 
 ## Speech-to-Text (STT)
