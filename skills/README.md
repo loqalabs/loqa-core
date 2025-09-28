@@ -1,6 +1,6 @@
 # Skills
 
-Loqa skills are packaged as WASM modules accompanied by a `skill.yaml` manifest that advertises metadata, runtime configuration, capabilities, and permissions. The examples in `skills/examples` act as reference implementations and regression fixtures for the host runtime.
+Loqa skills are packaged as WASM modules accompanied by a `skill.yaml` manifest that advertises metadata, runtime configuration, capabilities, and permissions. The examples in `skills/examples` act as reference implementations and regression fixtures for the host runtime. Refer to the [`docs/skills/SPEC.md`](../docs/skills/SPEC.md) document for the formal manifest schema and host ABI details.
 
 ## Prerequisites
 
