@@ -12,15 +12,17 @@ Loqa Core contains the foundational components for building and running a distri
 - **Documentation**: Technical docs and API references
 - **Proto Schemas**: Protocol definitions for inter-service communication
 
-## Hybrid Open-Core Model
+## A Composable, Ethical Open Core
 
-Loqa blends three pillars so the project stays weird, local, and sustainable:
+Loqa is an open-source ambient intelligence platform designed to run locally, adapt to your life, and respect your data.
 
-- **Public-good core:** The runtime, protocols, and tooling remain MIT-licensed and community governed—see the [license](LICENSE) and the [governance notes](https://github.com/ambiware-labs/loqa-meta/tree/main/governance).
-- **Modular extensibility:** Skills and adapters plug in like VS Code extensions. Start with the [authoring guide](skills/AUTHORING_GUIDE.md) and follow the skills spec work in [loqa-core#37](https://github.com/ambiware-labs/loqa-core/issues/37).
-- **Value-add ecosystem:** Optional managed services, premium skill packs, and curated hardware bundles will live outside the OSS core. Track the roadmap in [loqa-meta#28](https://github.com/ambiware-labs/loqa-meta/issues/28) and partner outreach in [loqa-meta#29](https://github.com/ambiware-labs/loqa-meta/issues/29).
+- **Composable Open Core:** The runtime, protocols, and tooling stay MIT-licensed forever. You can self-host, fork, and embed without restrictions.
+- **Modular extensibility:** Skills and adapters plug in like VS Code extensions. Start with the [authoring guide](skills/AUTHORING_GUIDE.md) and the [skills spec](https://github.com/ambiware-labs/loqa-core/blob/main/docs/skills/SPEC.md).
+- **Loqa Studio add-ons:** Optional persona packs, premium skills, encrypted Loqa Cloud sync, and support subscriptions enrich the experience without gating your freedom.
 
-Want to contribute? Drop into the [Extension Labs resources](https://github.com/ambiware-labs/loqa-meta/issues/27) or weigh in on the marketplace RFC ([loqa-meta#26](https://github.com/ambiware-labs/loqa-meta/issues/26)).
+We call this model **Composable Open Core**, backed by a commitment to **ethical monetization**. No bait-and-switch. No forced telemetry. No locked-in silos. Just intelligent software you can trust—and build on.
+
+Want to contribute? Explore the [Extension Labs resources](https://github.com/ambiware-labs/loqa-meta/blob/main/community/extension-labs/README.md), read the [contributor guide](https://github.com/ambiware-labs/loqa-meta/blob/main/community/contributing-guide.md), or weigh in on the marketplace RFC ([RFC-0003](https://github.com/ambiware-labs/loqa-meta/blob/main/rfcs/RFC-0003_loqa_marketplace_mvp.md)).
 
 ## Downloads
 
