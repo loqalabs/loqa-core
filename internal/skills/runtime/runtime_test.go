@@ -7,8 +7,8 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/ambiware-labs/loqa-core/internal/skills/manifest"
-	runtime "github.com/ambiware-labs/loqa-core/internal/skills/runtime"
+	"github.com/loqalabs/loqa-core/internal/skills/manifest"
+	runtime "github.com/loqalabs/loqa-core/internal/skills/runtime"
 )
 
 const sampleManifest = `metadata:

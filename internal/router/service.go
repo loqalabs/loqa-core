@@ -7,9 +7,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/ambiware-labs/loqa-core/internal/bus"
-	"github.com/ambiware-labs/loqa-core/internal/config"
-	"github.com/ambiware-labs/loqa-core/internal/protocol"
+	"github.com/loqalabs/loqa-core/internal/bus"
+	"github.com/loqalabs/loqa-core/internal/config"
+	"github.com/loqalabs/loqa-core/internal/protocol"
 	"github.com/nats-io/nats.go"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
@@ -46,8 +46,8 @@ type sessionState struct {
 
 func NewService(parent context.Context, cfg config.RouterConfig, busClient *bus.Client, logger *slog.Logger) *Service {
 	ctx, cancel := context.WithCancel(parent)
-	tracer := otel.Tracer("github.com/ambiware-labs/loqa-core/router")
-	meter := otel.Meter("github.com/ambiware-labs/loqa-core/router")
+	tracer := otel.Tracer("github.com/loqalabs/loqa-core/router")
+	meter := otel.Meter("github.com/loqalabs/loqa-core/router")
 
 	hist, err := meter.Float64Histogram(
 		"loqa.voice_latency_ms",

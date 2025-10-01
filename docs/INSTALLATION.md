@@ -36,7 +36,7 @@ brew install nats-io/nats/nats
 
 ### Option A: Download a nightly archive
 
-1. Visit the [Nightly builds workflow](https://github.com/ambiware-labs/loqa-core/actions/workflows/nightly.yml) and open the latest successful run.
+1. Visit the [Nightly builds workflow](https://github.com/loqalabs/loqa-core/actions/workflows/nightly.yml) and open the latest successful run.
 2. Download the artifact bundle that matches your platform (e.g., `loqa-core_nightly-YYYYMMDD_linux_amd64.tar.gz`).
 3. Verify integrity:
 
@@ -54,7 +54,7 @@ You can perform the same download with the GitHub CLI:
 
 ```bash
 gh run download \
-  --repo ambiware-labs/loqa-core \
+  --repo loqalabs/loqa-core \
   --workflow nightly.yml \
   --latest \
   --name nightly-YYYYMMDD-linux-amd64
@@ -63,7 +63,7 @@ gh run download \
 ### Option B: Build from source
 
 ```bash
-git clone https://github.com/ambiware-labs/loqa-core.git
+git clone https://github.com/loqalabs/loqa-core.git
 cd loqa-core
 make skills            # compiles TinyGo examples and validates manifests
 make run               # builds and launches the runtime with the example config

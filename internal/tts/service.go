@@ -7,9 +7,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/ambiware-labs/loqa-core/internal/bus"
-	"github.com/ambiware-labs/loqa-core/internal/config"
-	"github.com/ambiware-labs/loqa-core/internal/protocol"
+	"github.com/loqalabs/loqa-core/internal/bus"
+	"github.com/loqalabs/loqa-core/internal/config"
+	"github.com/loqalabs/loqa-core/internal/protocol"
 	"github.com/nats-io/nats.go"
 )
 

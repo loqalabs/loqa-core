@@ -138,8 +138,8 @@ The host records `skill.invoke.start`, `skill.invoke.error`, and `skill.invoke.c
 
 Open questions and future work are tracked in:
 
-- [loqa-core#37](https://github.com/ambiware-labs/loqa-core/issues/37) – skills spec evolution
-- [loqa-meta#26](https://github.com/ambiware-labs/loqa-meta/issues/26) – marketplace RFC
-- [loqa-meta#27](https://github.com/ambiware-labs/loqa-meta/issues/27) – Extension Labs resources
+- [loqa-core#37](https://github.com/loqalabs/loqa-core/issues/37) – skills spec evolution
+- [loqa-meta#26](https://github.com/loqalabs/loqa-meta/issues/26) – marketplace RFC
+- [loqa-meta#27](https://github.com/loqalabs/loqa-meta/issues/27) – Extension Labs resources
 
 If you need additional host capabilities, open a discussion or RFC in `loqa-meta`.

@@ -8,8 +8,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/ambiware-labs/loqa-core/internal/bus"
-	"github.com/ambiware-labs/loqa-core/internal/config"
+	"github.com/loqalabs/loqa-core/internal/bus"
+	"github.com/loqalabs/loqa-core/internal/config"
 	"github.com/nats-io/nats.go"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
@@ -63,7 +63,7 @@ func NewRegistry(ctx context.Context, cfg config.NodeConfig, busClient *bus.Clie
 		log:    log.With(slog.String("component", "capability-registry")),
 		bus:    busClient,
 		nodes:  make(map[string]*NodeInfo),
-		meter:  otel.Meter("github.com/ambiware-labs/loqa-core/runtime"),
+		meter:  otel.Meter("github.com/loqalabs/loqa-core/runtime"),
 		cancel: cancel,
 	}
 

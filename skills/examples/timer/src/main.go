@@ -6,7 +6,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/ambiware-labs/loqa-core/skills/examples/internal/host"
+	"github.com/loqalabs/loqa-core/skills/examples/internal/host"
 )
 
 type timerRequest struct {

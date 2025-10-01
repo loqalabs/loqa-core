@@ -10,7 +10,7 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/ambiware-labs/loqa-core/internal/config"
+	"github.com/loqalabs/loqa-core/internal/config"
 	_ "modernc.org/sqlite"
 )
 

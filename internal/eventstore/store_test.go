@@ -8,7 +8,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ambiware-labs/loqa-core/internal/config"
+	"github.com/loqalabs/loqa-core/internal/config"
 )
 
 func newLogger() *slog.Logger {

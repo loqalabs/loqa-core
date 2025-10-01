@@ -17,17 +17,17 @@ Loqa Core contains the foundational components for building and running a distri
 Loqa is an open-source ambient intelligence platform designed to run locally, adapt to your life, and respect your data.
 
 - **Composable Open Core:** The runtime, protocols, and tooling stay MIT-licensed forever. You can self-host, fork, and embed without restrictions.
-- **Modular extensibility:** Skills and adapters plug in like VS Code extensions. Start with the [authoring guide](skills/AUTHORING_GUIDE.md) and the [skills spec](https://github.com/ambiware-labs/loqa-core/blob/main/docs/skills/SPEC.md).
+- **Modular extensibility:** Skills and adapters plug in like VS Code extensions. Start with the [authoring guide](skills/AUTHORING_GUIDE.md) and the [skills spec](https://github.com/loqalabs/loqa-core/blob/main/docs/skills/SPEC.md).
 - **Loqa Studio add-ons:** Optional persona packs, premium skills, encrypted Loqa Cloud sync, and support subscriptions enrich the experience without gating your freedom.
 
 We call this model **Composable Open Core**, backed by a commitment to **ethical monetization**. No bait-and-switch. No forced telemetry. No locked-in silos. Just intelligent software you can trust—and build on.
 
-Want to contribute? Explore the [Extension Labs resources](https://github.com/ambiware-labs/loqa-meta/blob/main/community/extension-labs/README.md), read the [contributor guide](https://github.com/ambiware-labs/loqa-meta/blob/main/community/contributing-guide.md), or weigh in on the marketplace RFC ([RFC-0003](https://github.com/ambiware-labs/loqa-meta/blob/main/rfcs/RFC-0003_loqa_marketplace_mvp.md)).
+Want to contribute? Explore the [Extension Labs resources](https://github.com/loqalabs/loqa-meta/blob/main/community/extension-labs/README.md), read the [contributor guide](https://github.com/loqalabs/loqa-meta/blob/main/community/contributing-guide.md), or weigh in on the marketplace RFC ([RFC-0003](https://github.com/loqalabs/loqa-meta/blob/main/rfcs/RFC-0003_loqa_marketplace_mvp.md)).
 
 ## Downloads
 
-- **Nightly snapshots:** Every day the [Nightly builds](https://github.com/ambiware-labs/loqa-core/actions/workflows/nightly.yml) workflow publishes artifacts that contain precompiled `loqad`, `loqa-skill`, sample configs, docs, and the TinyGo example skill packages. Download the archive that matches your platform (e.g., `loqa-core_nightly-YYYYMMDD_linux_amd64.tar.gz`), verify it with the accompanying `.sha256`, and extract it with `tar -xzf`.
-- **Tagged releases:** Pushing a `v*` tag produces versioned bundles via the [Release workflow](https://github.com/ambiware-labs/loqa-core/actions/workflows/release.yml). These are attached automatically to the corresponding GitHub Release page.
+- **Nightly snapshots:** Every day the [Nightly builds](https://github.com/loqalabs/loqa-core/actions/workflows/nightly.yml) workflow publishes artifacts that contain precompiled `loqad`, `loqa-skill`, sample configs, docs, and the TinyGo example skill packages. Download the archive that matches your platform (e.g., `loqa-core_nightly-YYYYMMDD_linux_amd64.tar.gz`), verify it with the accompanying `.sha256`, and extract it with `tar -xzf`.
+- **Tagged releases:** Pushing a `v*` tag produces versioned bundles via the [Release workflow](https://github.com/loqalabs/loqa-core/actions/workflows/release.yml). These are attached automatically to the corresponding GitHub Release page.
 
 ## Getting Started
 

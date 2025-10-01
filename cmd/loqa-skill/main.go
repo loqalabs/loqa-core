@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/ambiware-labs/loqa-core/internal/skills/manifest"
+	"github.com/loqalabs/loqa-core/internal/skills/manifest"
 )
 
 var version = "0.1.0-dev"
