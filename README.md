@@ -206,6 +206,6 @@ Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines on how to contribut
 
 This repository is released under the [MIT License](LICENSE). Commercial extensions will live in separate repositories without impacting the open-source core.
 
-## About Ambiware Labs
+## About Loqa Labs
 
-Loqa is developed by [Ambiware Labs](https://ambiware.ai), building the future of local-first ambient intelligence.
+Loqa is developed by [Loqa Labs](https://ambiware.ai), building the future of local-first ambient intelligence.

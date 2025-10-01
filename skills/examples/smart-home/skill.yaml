@@ -2,7 +2,7 @@ metadata:
   name: smart-home-bridge
   version: 0.1.0
   description: Bridges Loqa intents to a local Home Assistant instance.
-  author: Ambiware Labs
+  author: Loqa Labs
 runtime:
   mode: wasm
   module: build/smart-home.wasm

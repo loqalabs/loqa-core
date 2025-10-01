@@ -177,4 +177,4 @@ Watch for subsequent messages on:
 | `tts publish blocked` warnings | Add the destination subject to the skill manifest `capabilities.bus.publish` list. |
 | HTTP health check fails | Inspect runtime logs for initialization errors (skills failing to load, bus authentication issues, etc.). |
 
-If you get stuck, open a Discussion on GitHub or drop a note in the Ambiware Labs community channel.
+If you get stuck, open a Discussion on GitHub or drop a note in the Loqa Labs community channel.
