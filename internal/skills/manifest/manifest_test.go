@@ -10,7 +10,7 @@ const validYAML = `metadata:
   name: timer
   version: 0.1.0
   description: Timer skill
-  author: Ambiware Labs
+  author: Loqa Labs
 runtime:
   mode: wasm
   module: build/timer.wasm

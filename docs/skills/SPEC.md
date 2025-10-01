@@ -20,7 +20,7 @@ metadata:
   name: timer
   version: 0.1.0
   description: Simple countdown timer skill that announces when time elapses.
-  author: Ambiware Labs
+  author: Loqa Labs
   tags: [timers, voice]
 runtime:
   mode: wasm
