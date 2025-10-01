@@ -8,7 +8,7 @@ import (
 	"log/slog"
 	"os"
 
-	"github.com/ambiware-labs/loqa-core/internal/skills/manifest"
+	"github.com/loqalabs/loqa-core/internal/skills/manifest"
 	"github.com/tetratelabs/wazero"
 	"github.com/tetratelabs/wazero/api"
 	"github.com/tetratelabs/wazero/imports/wasi_snapshot_preview1"

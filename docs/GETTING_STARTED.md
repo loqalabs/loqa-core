@@ -17,7 +17,7 @@ Welcome! This guide walks you through running the Loqa runtime locally with the 
 
 If you want to skip building the binaries manually, grab the latest snapshot artifact:
 
-1. Visit the [Nightly builds workflow](https://github.com/ambiware-labs/loqa-core/actions/workflows/nightly.yml) and open the most recent successful run.
+1. Visit the [Nightly builds workflow](https://github.com/loqalabs/loqa-core/actions/workflows/nightly.yml) and open the most recent successful run.
 2. Download the archive that matches your platform, for example `loqa-core_nightly-YYYYMMDD_linux_amd64.tar.gz`.
 3. (Recommended) Validate the checksum with `shasum -a 256 -c loqa-core_nightly-YYYYMMDD_linux_amd64.tar.gz.sha256`.
 4. Extract the bundle and add the binaries to your `PATH`:
@@ -31,7 +31,7 @@ You can perform the same download via the GitHub CLI:
 
 ```bash
 gh run download \
-  --repo ambiware-labs/loqa-core \
+  --repo loqalabs/loqa-core \
   --workflow nightly.yml \
   --latest \
   --name nightly-YYYYMMDD-linux-amd64
@@ -50,7 +50,7 @@ Leave this running in its own terminal. (If you already run NATS elsewhere, upda
 ## 2. Clone the repository
 
 ```bash
-git clone https://github.com/ambiware-labs/loqa-core.git
+git clone https://github.com/loqalabs/loqa-core.git
 cd loqa-core
 ```
 
@@ -160,8 +160,8 @@ Once validated you can swap the simulated transcript publishing for real PCM fra
 ## 8. Next steps
 
 - **Read the Skills Runtime Guide:** Dive into manifests, permissions, and how to build your own WASM modules in [`skills/README.md`](../skills/README.md).
-- **Check the MVP Backlog:** See what’s planned in [`loqa-meta`](https://github.com/ambiware-labs/loqa-meta/blob/main/roadmap/MVP_BACKLOG.md).
-- **Join Discussions:** Share ideas or ask questions in [GitHub Discussions](https://github.com/ambiware-labs/loqa-core/discussions).
+- **Check the MVP Backlog:** See what’s planned in [`loqa-meta`](https://github.com/loqalabs/loqa-meta/blob/main/roadmap/MVP_BACKLOG.md).
+- **Join Discussions:** Share ideas or ask questions in [GitHub Discussions](https://github.com/loqalabs/loqa-core/discussions).
 - **Try observability:** Spin up the Grafana/Tempo/Loki stack with `make -C observability docker-up` and watch traces/metrics.
 
 ## Troubleshooting

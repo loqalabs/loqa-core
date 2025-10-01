@@ -13,11 +13,11 @@ import (
 	"sync"
 	"time"
 
-	"github.com/ambiware-labs/loqa-core/internal/bus"
-	"github.com/ambiware-labs/loqa-core/internal/config"
-	"github.com/ambiware-labs/loqa-core/internal/eventstore"
-	manifestpkg "github.com/ambiware-labs/loqa-core/internal/skills/manifest"
-	skillrt "github.com/ambiware-labs/loqa-core/internal/skills/runtime"
+	"github.com/loqalabs/loqa-core/internal/bus"
+	"github.com/loqalabs/loqa-core/internal/config"
+	"github.com/loqalabs/loqa-core/internal/eventstore"
+	manifestpkg "github.com/loqalabs/loqa-core/internal/skills/manifest"
+	skillrt "github.com/loqalabs/loqa-core/internal/skills/runtime"
 	"github.com/google/uuid"
 	"github.com/nats-io/nats.go"
 )

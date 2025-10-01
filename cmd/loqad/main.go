@@ -10,8 +10,8 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/ambiware-labs/loqa-core/internal/config"
-	"github.com/ambiware-labs/loqa-core/internal/runtime"
+	"github.com/loqalabs/loqa-core/internal/config"
+	"github.com/loqalabs/loqa-core/internal/runtime"
 )
 
 var version = "0.1.0-dev"

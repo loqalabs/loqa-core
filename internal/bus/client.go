@@ -9,7 +9,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/ambiware-labs/loqa-core/internal/config"
+	"github.com/loqalabs/loqa-core/internal/config"
 	"github.com/nats-io/nats.go"
 )
 

@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/ambiware-labs/loqa-core/internal/config"
+	"github.com/loqalabs/loqa-core/internal/config"
 )
 
 // Request describes a language model prompt.

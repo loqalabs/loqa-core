@@ -1,4 +1,4 @@
-module github.com/ambiware-labs/loqa-core
+module github.com/loqalabs/loqa-core
 
 go 1.24.3
 

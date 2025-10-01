@@ -9,15 +9,15 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/ambiware-labs/loqa-core/internal/bus"
-	"github.com/ambiware-labs/loqa-core/internal/capability"
-	"github.com/ambiware-labs/loqa-core/internal/config"
-	"github.com/ambiware-labs/loqa-core/internal/eventstore"
-	"github.com/ambiware-labs/loqa-core/internal/llm"
-	"github.com/ambiware-labs/loqa-core/internal/router"
-	skillservice "github.com/ambiware-labs/loqa-core/internal/skills/service"
-	"github.com/ambiware-labs/loqa-core/internal/stt"
-	"github.com/ambiware-labs/loqa-core/internal/tts"
+	"github.com/loqalabs/loqa-core/internal/bus"
+	"github.com/loqalabs/loqa-core/internal/capability"
+	"github.com/loqalabs/loqa-core/internal/config"
+	"github.com/loqalabs/loqa-core/internal/eventstore"
+	"github.com/loqalabs/loqa-core/internal/llm"
+	"github.com/loqalabs/loqa-core/internal/router"
+	skillservice "github.com/loqalabs/loqa-core/internal/skills/service"
+	"github.com/loqalabs/loqa-core/internal/stt"
+	"github.com/loqalabs/loqa-core/internal/tts"
 )
 
 type Runtime struct {

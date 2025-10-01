@@ -96,4 +96,4 @@ For implementation details, review:
 - [`docs/GETTING_STARTED.md`](GETTING_STARTED.md) for the sample pipeline walkthrough
 - [`skills/AUTHORING_GUIDE.md`](../skills/AUTHORING_GUIDE.md) to build and package new skills
 
-Community discussions and RFCs live in the [`loqa-meta`](https://github.com/ambiware-labs/loqa-meta) repository.
+Community discussions and RFCs live in the [`loqa-meta`](https://github.com/loqalabs/loqa-meta) repository.
