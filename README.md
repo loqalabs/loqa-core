@@ -1,5 +1,7 @@
 # Loqa Core
 
+> **Note**: This is the foundation runtime for the Loqa ecosystem. Active development is currently focused on [loqa-meetings](https://github.com/loqalabs/loqa-meetings). Loqa Core provides stable STT, LLM, and TTS services that loqa-meetings uses via NATS.
+
 The core runtime, control plane, SDKs, documentation, and protocol schemas for Loqa - a local-first, open-core ambient intelligence platform.
 
 ## Overview
