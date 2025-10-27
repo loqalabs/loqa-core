@@ -26,7 +26,7 @@ func Start(cfg config.BusConfig, log *slog.Logger) (*EmbeddedServer, error) {
 		Port:      cfg.Port,
 		JetStream: true,
 		StoreDir:  "./data/nats",
-		LogFile:   "",     // Use stdout/stderr
+		LogFile:   "", // Use stdout/stderr
 		Trace:     false,
 		Debug:     false,
 	}

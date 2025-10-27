@@ -10,9 +10,9 @@ import (
 	"os/exec"
 	"sync"
 
-	"github.com/loqalabs/loqa-core/internal/config"
 	"github.com/go-audio/audio"
 	"github.com/go-audio/wav"
+	"github.com/loqalabs/loqa-core/internal/config"
 	"github.com/mattn/go-shellwords"
 )
 
