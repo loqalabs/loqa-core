@@ -9,6 +9,11 @@ telemetry:
   otlp_insecure: true
   prometheus_bind: ":9091"
 bus:
+  # Embedded NATS server for zero-dependency deployment
+  embedded: true          # Set to false to use external NATS server
+  port: 4222             # Port for embedded server (only used when embedded=true)
+
+  # External NATS configuration (only used when embedded=false)
   servers:
     - nats://localhost:4222
   username: ""

@@ -6,6 +6,8 @@ __pycache__/
 # Go build artifacts
 bin/
 go-build/
+loqad
+loqa.yaml
 
 # Skill example build outputs
 skills/examples/*/build/

@@ -39,6 +39,8 @@ type Config struct {
 }
 
 type BusConfig struct {
+	Embedded       bool     `yaml:"embedded"`
+	Port           int      `yaml:"port"`
 	Servers        []string `yaml:"servers"`
 	Username       string   `yaml:"username"`
 	Password       string   `yaml:"password"`
@@ -133,6 +135,8 @@ func Default() Config {
 			PrometheusBind: ":9091",
 		},
 		Bus: BusConfig{
+			Embedded:       true,
+			Port:           4222,
 			Servers:        []string{"nats://localhost:4222"},
 			ConnectTimeout: 2000,
 		},
@@ -223,6 +227,8 @@ func applyEnvOverrides(cfg *Config) {
 	overrideString(&cfg.Telemetry.OTLPEndpoint, "LOQA_TELEMETRY_OTLP_ENDPOINT")
 	overrideBool(&cfg.Telemetry.OTLPInsecure, "LOQA_TELEMETRY_OTLP_INSECURE")
 	overrideString(&cfg.Telemetry.PrometheusBind, "LOQA_TELEMETRY_PROMETHEUS_BIND")
+	overrideBool(&cfg.Bus.Embedded, "LOQA_BUS_EMBEDDED")
+	overrideInt(&cfg.Bus.Port, "LOQA_BUS_PORT")
 	overrideStringSlice(&cfg.Bus.Servers, "LOQA_BUS_SERVERS")
 	overrideString(&cfg.Bus.Username, "LOQA_BUS_USERNAME")
 	overrideString(&cfg.Bus.Password, "LOQA_BUS_PASSWORD")
@@ -322,8 +328,14 @@ func validate(cfg Config) error {
 	if cfg.HTTP.Port <= 0 || cfg.HTTP.Port > 65535 {
 		return errors.New("http.port must be between 1 and 65535")
 	}
-	if len(cfg.Bus.Servers) == 0 {
-		return errors.New("bus.servers must not be empty")
+	if cfg.Bus.Embedded {
+		if cfg.Bus.Port <= 0 || cfg.Bus.Port > 65535 {
+			return errors.New("bus.port must be between 1 and 65535 when embedded mode is enabled")
+		}
+	} else {
+		if len(cfg.Bus.Servers) == 0 {
+			return errors.New("bus.servers must not be empty when embedded mode is disabled")
+		}
 	}
 	if cfg.Node.ID == "" {
 		return errors.New("node.id must not be empty")

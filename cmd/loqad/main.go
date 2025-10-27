@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/loqalabs/loqa-core/internal/config"
+	"github.com/loqalabs/loqa-core/internal/natsserver"
 	"github.com/loqalabs/loqa-core/internal/runtime"
 )
 
@@ -37,6 +38,16 @@ func main() {
 	if err != nil {
 		logger.Error("failed to load config", slog.String("error", err.Error()))
 		os.Exit(1)
+	}
+
+	// Start embedded NATS server if configured
+	natsServer, err := natsserver.Start(cfg.Bus, logger)
+	if err != nil {
+		logger.Error("failed to start embedded NATS server", slog.String("error", err.Error()))
+		os.Exit(1)
+	}
+	if natsServer != nil {
+		defer natsServer.Shutdown()
 	}
 
 	rt := runtime.New(cfg, logger)
