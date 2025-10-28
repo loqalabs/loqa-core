@@ -20,7 +20,7 @@ def build_args() -> argparse.Namespace:
     parser.add_argument("--model", required=True, help="Path to the Whisper model file")
     parser.add_argument("--audio", required=True, help="Path to the input WAV file")
     parser.add_argument("--language", default=None, help="Two-letter language code (optional)")
-    parser.add_argument("--compute-type", default="int8_float16", help="faster-whisper compute type")
+    parser.add_argument("--compute-type", default="int8", help="faster-whisper compute type (int8, float16, float32)")
     parser.add_argument("--beam-size", type=int, default=1)
     parser.add_argument("--temperature", type=float, default=0.0)
     parser.add_argument("--partial", action="store_true", help="Hint that this request is for an interim transcript")
