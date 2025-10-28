@@ -41,6 +41,18 @@ Want to contribute? Explore the [Extension Labs resources](https://github.com/lo
   make run      # runs go run ./cmd/loqad --config ./config/example.yaml
   ```
 
+- **Quick start with STT enabled:**
+
+  ```bash
+  # Install STT dependencies
+  pip3 install faster-whisper
+
+  # Enable STT and run (using embedded NATS)
+  LOQA_STT_ENABLED=true LOQA_STT_MODE=exec make run
+  ```
+
+  This starts loqad with the embedded NATS server and streaming speech-to-text using the faster-whisper Python wrapper. The system will download a Whisper model on first run. See the [Speech-to-Text](#speech-to-text-stt) section below for advanced configuration.
+
 If no config file is supplied the runtime loads defaults and respects the following environment overrides:
 
 - `LOQA_RUNTIME_NAME`
@@ -99,7 +111,11 @@ If no config file is supplied the runtime loads defaults and respects the follow
 
 The bootstrap process exposes `/healthz` and `/readyz` endpoints and initializes OpenTelemetry tracing with a local stdout exporter. See `cmd/loqad --help` for additional flags.
 
-> **Note:** Loqa Core expects a NATS server with JetStream enabled to be running at the configured `bus.servers` endpoint (default `nats://localhost:4222`). You can start one locally with `nats-server --js` or the official Docker image.
+### Message Bus
+
+By default, Loqa Core runs an **embedded NATS server** (configured via `bus.embedded: true` in your config). This provides zero-dependency deployment—just start `loqad` and it brings up its own JetStream-enabled message bus on `bus.port` (default `4222`).
+
+If you prefer an external NATS server, set `bus.embedded: false` and configure `bus.servers` to point to your NATS instance (e.g., `nats://localhost:4222`). You can start a standalone NATS server with `nats-server --js` or the official Docker image.
 
 An on-disk SQLite event store is created at `event_store.path` (default `./data/loqa-events.db`) unless `event_store.retention_mode` is set to `ephemeral`. Use `session` for local replay debugging or `persistent` to honor retention windows (days and max sessions).
 
