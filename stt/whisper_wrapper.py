@@ -55,13 +55,16 @@ def main() -> int:
     if not text:
         text = ""
 
-    result = {
-        "text": text,
-    }
     # Convert avg_logprob (negative log probability, typically -1.0 to 0.0)
     # to a 0-1 confidence score using exponential transformation
+    confidence = 0.0
     if info is not None and hasattr(info, "avg_logprob") and info.avg_logprob is not None:
-        result["confidence"] = float(math.exp(info.avg_logprob))
+        confidence = float(math.exp(info.avg_logprob))
+
+    result = {
+        "text": text,
+        "confidence": confidence,
+    }
 
     print(json.dumps(result))
     return 0

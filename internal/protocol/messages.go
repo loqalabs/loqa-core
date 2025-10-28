@@ -18,7 +18,7 @@ type Transcript struct {
 	Text       string    `json:"text"`
 	Partial    bool      `json:"partial"`
 	Timestamp  time.Time `json:"timestamp"`
-	Confidence float64   `json:"confidence,omitempty"`
+	Confidence float64   `json:"confidence"`
 }
 
 const (
