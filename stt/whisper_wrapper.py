@@ -51,15 +51,21 @@ def main() -> int:
         temperature=args.temperature,
     )
 
-    text = "".join(segment.text for segment in segments).strip()
+    # Collect text and avg_logprob from segments
+    segment_list = list(segments)
+    text = "".join(segment.text for segment in segment_list).strip()
     if not text:
         text = ""
 
+    # Calculate average confidence from all segments
     # Convert avg_logprob (negative log probability, typically -1.0 to 0.0)
     # to a 0-1 confidence score using exponential transformation
     confidence = 0.0
-    if info is not None and hasattr(info, "avg_logprob") and info.avg_logprob is not None:
-        confidence = float(math.exp(info.avg_logprob))
+    if segment_list:
+        logprobs = [seg.avg_logprob for seg in segment_list if hasattr(seg, 'avg_logprob')]
+        if logprobs:
+            avg_logprob = sum(logprobs) / len(logprobs)
+            confidence = float(math.exp(avg_logprob))
 
     result = {
         "text": text,
