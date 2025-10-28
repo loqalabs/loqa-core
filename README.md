@@ -134,7 +134,7 @@ To visualize traces/metrics/logs locally, set `LOQA_TELEMETRY_OTLP_ENDPOINT=loca
 Set `stt.enabled: true` in the configuration to activate the streaming STT worker. Two modes are supported:
 
 - `mock` — emits synthetic transcripts, useful for development without a model.
-- `exec` — shells out to a command (for example the bundled `stt/faster_whisper.py` wrapper) that must return JSON `{ "text": "...", "confidence": 0.0 }` on stdout.
+- `exec` — shells out to a command (for example the bundled `stt/whisper_wrapper.py` wrapper) that must return JSON `{ "text": "...", "confidence": 0.0 }` on stdout.
 
 Example `stt` configuration:
 
@@ -142,7 +142,7 @@ Example `stt` configuration:
 stt:
   enabled: true
   mode: exec
-  command: "python3 stt/faster_whisper.py"
+  command: "python3 stt/whisper_wrapper.py"
   model_path: ./models/ggml-base.bin
   language: en
   publish_interim: false
