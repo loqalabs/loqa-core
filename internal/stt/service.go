@@ -57,6 +57,7 @@ func (s *Service) Start() error {
 	}
 	s.sub = sub
 	s.ready = true
+	s.bus.Logger().Info("STT service started", slog.String("mode", s.cfg.Mode), slog.String("subject", subject))
 	return nil
 }
 
@@ -84,17 +85,30 @@ func (s *Service) handleFrame(msg *nats.Msg) {
 	if state == nil {
 		state = &sessionState{}
 		s.sessions[frame.SessionID] = state
+		s.bus.Logger().Info("new STT session started", slog.String("session_id", frame.SessionID))
 	}
 	state.Buffer = append(state.Buffer, frame.PCM...)
+	bufferSize := len(state.Buffer)
 	s.mu.Unlock()
+
+	s.bus.Logger().Debug("received audio frame",
+		slog.String("session_id", frame.SessionID),
+		slog.Int("sequence", frame.Sequence),
+		slog.Int("pcm_bytes", len(frame.PCM)),
+		slog.Int("buffer_size", bufferSize),
+		slog.Bool("final", frame.Final))
 
 	if s.cfg.PublishInterim && !frame.Final {
 		schedulePartial := s.shouldSchedulePartial(frame.SessionID)
 		if schedulePartial {
+			s.bus.Logger().Info("scheduling partial transcription", slog.String("session_id", frame.SessionID))
 			s.scheduleTranscription(frame.SessionID, false)
 		}
 	}
 	if frame.Final {
+		s.bus.Logger().Info("scheduling final transcription",
+			slog.String("session_id", frame.SessionID),
+			slog.Int("total_buffer_size", bufferSize))
 		s.scheduleTranscription(frame.SessionID, true)
 	}
 }
@@ -148,10 +162,22 @@ func (s *Service) scheduleTranscription(sessionID string, final bool) {
 		ctx, cancel := context.WithTimeout(s.ctx, 45*time.Second)
 		defer cancel()
 
+		s.bus.Logger().Info("starting transcription",
+			slog.String("session_id", sessionID),
+			slog.Int("pcm_bytes", len(pcm)),
+			slog.Bool("final", final))
+
 		result, err := s.recognizer.Transcribe(ctx, pcm, s.cfg.SampleRate, s.cfg.Channels, final)
 		if err != nil {
-			s.bus.Logger().Warn("stt transcription failed", slogError(err))
+			s.bus.Logger().Warn("stt transcription failed",
+				slog.String("session_id", sessionID),
+				slogError(err))
 		} else {
+			s.bus.Logger().Info("transcription completed",
+				slog.String("session_id", sessionID),
+				slog.String("text", result.Text),
+				slog.Float64("confidence", result.Confidence),
+				slog.Bool("final", final))
 			s.publishTranscript(sessionID, result.Text, result.Confidence, final)
 		}
 
@@ -178,6 +204,7 @@ func (s *Service) scheduleTranscription(sessionID string, final bool) {
 
 func (s *Service) publishTranscript(sessionID, text string, confidence float64, final bool) {
 	if text == "" {
+		s.bus.Logger().Warn("skipping empty transcript", slog.String("session_id", sessionID))
 		return
 	}
 	subject := protocol.SubjectTranscriptPartial
@@ -198,6 +225,11 @@ func (s *Service) publishTranscript(sessionID, text string, confidence float64, 
 	}
 	if err := s.bus.Conn().Publish(subject, data); err != nil {
 		s.bus.Logger().Warn("failed to publish transcript", slogError(err))
+	} else {
+		s.bus.Logger().Info("published transcript",
+			slog.String("session_id", sessionID),
+			slog.String("subject", subject),
+			slog.Int("text_length", len(text)))
 	}
 }
 

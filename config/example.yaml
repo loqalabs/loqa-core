@@ -43,8 +43,8 @@ event_store:
   max_sessions: 10000
   vacuum_on_start: false
 stt:
-  enabled: false
-  mode: mock
+  enabled: true
+  mode: exec
   command: "python3 stt/whisper_wrapper.py"
   model_path: base.en
   language: en
