@@ -46,7 +46,7 @@ stt:
   enabled: true
   mode: exec
   command: "python3 stt/whisper_wrapper.py"
-  model_path: base.en
+  model_path: small.en
   language: en
   sample_rate: 16000
   channels: 1
