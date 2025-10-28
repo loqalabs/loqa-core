@@ -3,6 +3,7 @@
 
 import argparse
 import json
+import math
 import sys
 
 try:
@@ -57,8 +58,10 @@ def main() -> int:
     result = {
         "text": text,
     }
-    if info is not None and getattr(info, "avg_logprob", None) is not None:
-        result["confidence"] = float(info.avg_logprob)
+    # Convert avg_logprob (negative log probability, typically -1.0 to 0.0)
+    # to a 0-1 confidence score using exponential transformation
+    if info is not None and hasattr(info, "avg_logprob") and info.avg_logprob is not None:
+        result["confidence"] = float(math.exp(info.avg_logprob))
 
     print(json.dumps(result))
     return 0
