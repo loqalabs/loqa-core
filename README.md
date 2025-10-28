@@ -143,12 +143,12 @@ stt:
   enabled: true
   mode: exec
   command: "python3 stt/whisper_wrapper.py"
-  model_path: ./models/ggml-base.bin
+  model_path: base.en
   language: en
   publish_interim: false
 ```
 
-> Install dependencies with `pip install faster-whisper` and download an appropriate Whisper model. The helper script caches models between invocations.
+> Install dependencies with `pip install faster-whisper`. The `model_path` should be a Hugging Face model name (e.g., `base.en`, `small.en`, `medium`, `large-v2`) or a local path to a CTranslate2 model directory. The model will be downloaded automatically on first use and cached.
 
 ## LLM Harness
 

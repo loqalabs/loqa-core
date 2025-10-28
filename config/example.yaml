@@ -46,7 +46,7 @@ stt:
   enabled: false
   mode: mock
   command: "python3 stt/whisper_wrapper.py"
-  model_path: ./models/ggml-base.bin
+  model_path: base.en
   language: en
   sample_rate: 16000
   channels: 1
